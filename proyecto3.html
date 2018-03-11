@@ -75,62 +75,7 @@ http://www.templatemo.com/tm-501-neaty
 								</br>
 								<p>Para la creación de la esfera realicé un mallado sobre la esfera. La resoución como el tamaño son parámetros de una función que calculan todos los vértices.
 								
-								
-								<pre align = "left">
-function crearEsfera (radio, angulo)
-{
-	var vertices = [];
-	for(var fi = 0; fi  <= Math.PI + angulo; fi += angulo)
-	{
-		for (var tta = 0 ; tta <= 2 * Math.PI ; tta += angulo)
-		{
-				var Z1 = radio * Math.cos(fi - angulo);
-				var X1 = radio * Math.sin(fi - angulo)* Math.cos(tta - angulo)
-				var Y1 = radio * Math.sin(fi - angulo)* Math.sin(tta - angulo)
-				
-				var X2 = radio * Math.sin(fi - angulo)* Math.cos(tta)
-				var Y2 = radio * Math.sin(fi - angulo)* Math.sin(tta)
-				
-				var Z2 = radio * Math.cos(fi);
-				var X3 = radio * Math.sin(fi)* Math.cos(tta - angulo)
-				var Y3 = radio * Math.sin(fi)* Math.sin(tta - angulo)
-				
-				var X4 = radio * Math.sin(fi)* Math.cos(tta)
-				var Y4 = radio * Math.sin(fi)* Math.sin(tta)
-				
-				vertices.push(X1);
-				vertices.push(Y1);
-				vertices.push(Z1);
-				
-				vertices.push(X2);
-				vertices.push(Y2);
-				vertices.push(Z1);
-				
-				vertices.push(X3);
-				vertices.push(Y3);
-				vertices.push(Z2);
-				
-				vertices.push(X3);
-				vertices.push(Y3);
-				vertices.push(Z2);
-				
-				vertices.push(X4);
-				vertices.push(Y4);
-				vertices.push(Z2);
-				
-				vertices.push(X2);
-				vertices.push(Y2);
-				vertices.push(Z1);
-				
-		}
-	}
-	
-	return vertices;
-
-
-}
-								</pre>
-						
+							
 
                             </section>
                            
