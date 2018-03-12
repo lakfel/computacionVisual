@@ -77,7 +77,7 @@ http://www.templatemo.com/tm-501-neaty
 </iframe>
 									
 								<p>El ejemplo es impresionante. Todo en este ejemplo es para destacar. El movimiento del agua, el efecto de gravedad, las texturas, los reflejos y manejo de luces, el manejo de la pausa y las interacciones en este estado.</p>
-								<p>El ejemplo en código por otro lado es bastante complejo y se me escapan muchas (la verdad la mayoría) de cosas que el autor realiza. Por este motivo no será el ejemplo que explicaré pero lo dejo acá como abrebocas de lo que es posible hacer. No obstante daré un pequeño resumen de lo que realiza.</p>
+								<p>El ejemplo en código por otro lado es bastante complejo y se me escapan muchas (la verdad la mayoría) de cosas que el autor realiza. Gran mayoría de las cosas que se realizan sobrepasan mi conocimiento. No obstante daré un pequeño resumen de lo que realiza.</p>
 							
 
 							
@@ -105,6 +105,8 @@ http://www.templatemo.com/tm-501-neaty
                                     <h4 class="tm-blue-text tm-margin-b-45">lightgl</h4>
                                 </header>
 								<p>Este script hace todo lo relacionado a la logística matemática. En primera define el contexto. Define operaciones matriciales para el manejo de la cámara. También define operaciones de pila para matrices. Maneja la lógica de los colores. También se encarga de los eventos del usuario. No menos imporante maneja la carga de mallas, texturas y definición de vectores.</p>
+								
+								<p>Sin embargo, su tarea principal es manejar los procedimientos matem[aticos y recurrentes. Más logística que técnica. Inversiones, multiplicaciones matriciales, etc</p>
 								
 								<header>
                                     <h4 class="tm-blue-text tm-margin-b-45">renderer</h4>
@@ -157,10 +159,88 @@ gl_FragColor.rgb *= underwaterColor * 1.2;\
 }\
 ');</pre>
 								<p> También se define para el cubo y para el agua ademas de algunas funciones de actualziación. Como nos podemos dar cuenta. El grueso del trabajo está sobre los shaders</p>
+								
+								
+								<header>
+                                    <h4 class="tm-blue-text tm-margin-b-45">water</h4>
+                                </header>
+								
+								<p> Esta clase es la que no entiendo bien. Si bien es claro que su función es crear shaders (si, también shaders)  no encuentro la relación con la clase anterior. Creo que su finción está más centrada a las interacciones pues maneja mpetodos como mover la esfera, pasos de simulación (Cuando se mueve la pelota el agua hace un movimiento que empieza a parar con el paso del tiempo). Actualiza los vectores normales para dibujar entre otros.<p/>
+								
+								<p> El entendimiento está en proceso y empezaré a actualizar a medida que vaya entendiendo.<p>
+								
+								
                             </section>
                            
-                       
-               
+							<header>
+                                    <h4 class="tm-blue-text tm-margin-b-45">OES_texture_float_linear-polyfill.js</h4>
+                             </header>
+							
+							<p> Esta es una extensión para el manejo de texturas. Es una mejora a una librería anterior creada por el mismo autor. La información la encontramos <a href = "https://github.com/evanw/OES_texture_float_linear-polyfill">aquí</a>
+							
+							<header>
+                                    <h4 class="tm-blue-text tm-margin-b-45">main</h4>
+                             </header>
+							<p> Llegamos a la clase que lo hace todo y nada a la vez. Como es de suponer, el script main es el gran orquestador. Realiza las tareas de organización. Dice que ejecutarse y cuando. Hace tareas de organización. Acá exponemos solo dos de los métodos más importantes.</p>
+							
+							<pre align = "left">
+function update(seconds) {
+if (seconds > 1) return;
+frame += seconds * 2;
+
+if (mode == MODE_MOVE_SPHERE) {
+  // Start from rest when the player releases the mouse after moving the sphere
+  velocity = new GL.Vector();
+} else if (useSpherePhysics) {
+  // Fall down with viscosity under water
+  var percentUnderWater = Math.max(0, Math.min(1, (radius - center.y) / (2 * radius)));
+  velocity = velocity.add(gravity.multiply(seconds - 1.1 * seconds * percentUnderWater));
+  velocity = velocity.subtract(velocity.unit().multiply(percentUnderWater * seconds * velocity.dot(velocity)));
+  center = center.add(velocity.multiply(seconds));
+
+  // Bounce off the bottom
+  if (center.y < radius - 1) {
+	center.y = radius - 1;
+	velocity.y = Math.abs(velocity.y) * 0.7;
+  }
+}
+
+// Displace water around the sphere
+water.moveSphere(oldCenter, center, radius);
+oldCenter = center;
+
+// Update the water simulation and graphics
+water.stepSimulation();
+water.stepSimulation();
+water.updateNormals();
+renderer.updateCaustics(water);
+}
+
+function draw() {
+// Change the light direction to the camera look vector when the L key is pressed
+if (GL.keys.L) {
+  renderer.lightDir = GL.Vector.fromAngles((90 - angleY) * Math.PI / 180, -angleX * Math.PI / 180);
+  if (paused) renderer.updateCaustics(water);
+}
+
+gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+gl.loadIdentity();
+gl.translate(0, 0, -4);
+gl.rotate(-angleX, 1, 0, 0);
+gl.rotate(-angleY, 0, 1, 0);
+gl.translate(0, 0.5, 0);
+
+gl.enable(gl.DEPTH_TEST);
+renderer.sphereCenter = center;
+renderer.sphereRadius = radius;
+renderer.renderCube();
+renderer.renderWater(water, cubemap);
+renderer.renderSphere();
+gl.disable(gl.DEPTH_TEST);
+}
+						</pre>
+						
+						<p> Vemos que solo realiza el llamado a las funciones. Otro manejo importante se hace sobre los que definene las acciones de cuando se realiza un drag sobre el escenario y cuando este termina.</p>
                         </div>  
                         
                     </div> <!-- Right column: content -->
