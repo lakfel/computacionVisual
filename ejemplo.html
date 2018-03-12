@@ -109,9 +109,54 @@ http://www.templatemo.com/tm-501-neaty
 								<header>
                                     <h4 class="tm-blue-text tm-margin-b-45">renderer</h4>
                                 </header>
-								<p>Uno de los más importantes.</p>
+								<p>Uno de los más importantes. Acá se definen los elementos que realmente van a desplegar la visualización. Acá se define la manera en que se va a pintar eso. Para eso primero se define una variable <strong>helper</strong>. En el se definene las cosas básicas de dibujo que bajo cualquier situación o interacción se debe pintar. El agua, los muros, la esfera.</p>
+								<p>Se define también un renderer que es el encargado de pintar el agua. Acá se definene elementos como la dirección de la luz, la textura, la malla del agua. Para dibujar el agua se crean dos shaders.</p>
 								
+								<pre align = "left">for (var i = 0; i < 2; i++) {
+this.waterShaders[i] = new GL.Shader('\</pre>
 								
+								<p> más abajo cerca de las líneas 165 en adelante se define que cada shader será por si se mira debajo del agua o pode encima del agua. Los cambios se definen en el vector normal, en la manera de reflexión de la luz y la manera de visualizar. </p>
+								
+								<p><strong>Debajo del agua</p></strong>
+								<pre align = "left">normal = -normal;\
+vec3 reflectedRay = reflect(incomingRay, normal);\
+vec3 refractedRay = refract(incomingRay, normal, IOR_WATER / IOR_AIR);\
+float fresnel = mix(0.5, 1.0, pow(1.0 - dot(normal, -incomingRay), 3.0));\
+\
+vec3 reflectedColor = getSurfaceRayColor(position, reflectedRay, underwaterColor);\
+vec3 refractedColor = getSurfaceRayColor(position, refractedRay, vec3(1.0)) * vec3(0.8, 1.0, 1.1);\
+\
+gl_FragColor = vec4(mix(reflectedColor, refractedColor, (1.0 - fresnel) * length(refractedRay)), 1.0);\</pre>
+
+								<p><strong>Sobre el agua</p></strong>
+								<pre align = "left">vec3 reflectedRay = reflect(incomingRay, normal);\
+vec3 refractedRay = refract(incomingRay, normal, IOR_AIR / IOR_WATER);\
+float fresnel = mix(0.25, 1.0, pow(1.0 - dot(normal, -incomingRay), 3.0));\
+\
+vec3 reflectedColor = getSurfaceRayColor(position, reflectedRay, abovewaterColor);\
+vec3 refractedColor = getSurfaceRayColor(position, refractedRay, abovewaterColor);\
+\
+gl_FragColor = vec4(mix(refractedColor, reflectedColor, fresnel), 1.0);\</pre>
+																
+								<p> Después de esto también se define un shader para la esfera.</p>
+								
+								<pre align = "left">this.sphereShader = new GL.Shader(helperFunctions + '\
+varying vec3 position;\
+void main() {\
+position = sphereCenter + gl_Vertex.xyz * sphereRadius;\
+gl_Position = gl_ModelViewProjectionMatrix * vec4(position, 1.0);\
+}\
+', helperFunctions + '\
+varying vec3 position;\
+void main() {\
+gl_FragColor = vec4(getSphereColor(position), 1.0);\
+vec4 info = texture2D(water, position.xz * 0.5 + 0.5);\
+if (position.y < info.r) {\
+gl_FragColor.rgb *= underwaterColor * 1.2;\
+}\
+}\
+');</pre>
+								<p> También se define para el cubo y para el agua ademas de algunas funciones de actualziación. Como nos podemos dar cuenta. El grueso del trabajo está sobre los shaders</p>
                             </section>
                            
                        
