@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Estudio de Web-GL</title>
+		<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+		<script src="webgl-utils.js"></script>
+		<script src="webglEx.js"></script>
+	</head>
+	<body onload = 'webGLStart()'>
+	
+		<script id="shader-fs" type="x-shader/x-fragment">
+		  precision mediump float;
+	      varying vec4 vColor;
+		  void main(void) {
+			gl_FragColor = vColor;
+		  }
+		</script>
+
+		<script id="shader-vs" type="x-shader/x-vertex">
+		  attribute vec3 aVertexPosition; // Esto son atributos. Var[ian de vertice en vertice
+		  attribute vec4 aVertexColor;
+
+		  uniform mat4 uMVMatrix; // Elementos fijos para todos los vertices	
+		  uniform mat4 uPMatrix;
+
+		  varying vec4 vColor; // Salidas de este shader en varyng // Primero corre el vertex y liego el fragment
+		  
+		  void main(void) {
+			gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+			vColor = aVertexColor;
+		  }
+		</script>
+		<canvas id = "miCanvas" width="500" height="500"></canvas>
+	</body>
+
+</html>
