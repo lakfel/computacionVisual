@@ -94,7 +94,8 @@ esfera_prim.prototype.calcularColores = function (pisos, nColores)
 	this.olores = [];
 	for(var fi = 0; fi  <= Math.PI ; fi += angulo)
 	{	
-		index =Math.floor(conteo/this.resolucion/pisos)*4
+		index = Math.floor(conteo/Math.floor(this.resolucion/pisos))* 4;
+		
 		for (var tta = 0 ; tta <= 2 * Math.PI ; tta += angulo)
 		{
 			

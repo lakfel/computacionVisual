@@ -1,4 +1,15 @@
 
+// Modificaciones de camara
+var rotacionPrimeraPersona;
+var translacion = [0, 0, 0, 0];
+var rotacion = [degToRad(1), 0, 0, 0];
+var translacionParcial = [0, 0, 0, 0];
+var rotacionpParcial = [0, 0, 0, 0];
+
+
+
+
+
 
 // Buffers de la esfera central. Posición y color
 var sphereVertexPositionBuffer;
@@ -21,10 +32,6 @@ var triangleVertexColorBuffer;
 // Buffers para las líneas que conectan las esferas
 var squareVertexPositionBuffer;
 var squareVertexColorBuffer;
-
-//Esfera
-var esfera;
-var esferaCentral;
 
 // Contexto
 var gl; // WEB GL
@@ -177,6 +184,25 @@ function webGLStart()
 		grasys.push((Math.random()*2 -1)*Math.PI);
 	}
 	
+	document.getElementById("btnPrimeraPersona").addEventListener("click",function(){
+		translacion = [0,-10,-5,0];
+		rotacion = [90,0,0,0];		
+	});
+	
+	document.getElementById("btnTerceraPersona").addEventListener("click",function(){
+		translacion = [8,-5,-5,0];		
+		rotacion = [45,55,0,0];		
+	});
+	
+	document.getElementById("btnLongshot").addEventListener("click",function(){
+		translacion = [1,2,-7,0];
+		rotacion = [-20,0,-5,0];		
+	});
+	document.getElementById("btnNormal").addEventListener("click",function(){
+		translacion = [0,0,0,0];
+		rotacion = [0,0,0,0];		
+	});
+		
 	conteo = 0;
 	tick();
 }
@@ -207,26 +233,14 @@ function tick() {
 function initBuffers() 
 {
 	
-	esfera = new esfera_prim();
-	
-	esfera.radio = 0.1
-	esfera.resolucion = 32;
-	esfera.calcularVertices();
-	
-	
-	esferaCentral = new esfera_prim();
-	
-	esferaCentral.radio = 0.8;
-	esferaCentral.resolucion = 32;
-	esferaCentral.calcularVertices();
-	
 	// UNA ESFERA
 	//   -- Posiciones
     triangleVertexPositionBuffer = gl.createBuffer();  // Esto crea un buffer con GL
 	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer); // Esto pone un FOCUS sobre el buffer que vamos a manejar
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(esfera.vertices), gl.STATIC_DRAW); // Llenamos el Buffer., Creando un array de Flots del array de vertices que ya creamos. Recordemos que esto es con el array que est[a Focus en este momento
+	var vertices = crearEsfera(0.1, Math.PI/32); // Creamos los vértices. Esto se maneja como un strip de triangulos. Acá no improta pero en elcuadrado si, el orden del 4 vértice.
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW); // Llenamos el Buffer., Creando un array de Flots del array de vertices que ya creamos. Recordemos que esto es con el array que est[a Focus en este momento
 	triangleVertexPositionBuffer.itemSize = 3; // JS permite darle propiedades aún así no las tenga.
-    triangleVertexPositionBuffer.numItems = esfera.vertices.length / 3;
+    triangleVertexPositionBuffer.numItems = vertices.length / 3;
 	
 	//   -- Colores. Estos se calculan en proceso
 	triangleVertexColorBuffer = gl.createBuffer();
@@ -292,17 +306,17 @@ function initBuffers()
 	sphereVertexColorBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexPositionBuffer);
 	
-
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(esferaCentral.vertices), gl.STATIC_DRAW);
+	vertices = crearEsfera(0.8, Math.PI/32);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 	sphereVertexPositionBuffer.itemSize = 3; // JS permite darle propiedades aún así no las tenga.
-    sphereVertexPositionBuffer.numItems = esferaCentral.vertices.length / 3;
+    sphereVertexPositionBuffer.numItems = vertices.length / 3;
 	gl.bindBuffer(gl.ARRAY_BUFFER, sphereVertexColorBuffer);
 	
 	// Colores
-	esferaCentral.calcularColores(2, [0,0,0,1,1,1,1,1]);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(esferaCentral.colores), gl.STATIC_DRAW);
+	colors = crearEsferaColores(0.8, Math.PI/32,0,0,0,1,1,1);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
     sphereVertexColorBuffer.itemSize = 4;
-    sphereVertexColorBuffer.numItems = esferaCentral.colores.length / 4;
+    sphereVertexColorBuffer.numItems = colors.length / 4;
 	
 	// Cubos superiores
 	cubo1VertexPositionBuffer = gl.createBuffer();
@@ -347,10 +361,10 @@ function initBuffers()
   {
 	// Se calculan los colores ( Si se guarda la info sería más eficiente)
 	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexColorBuffer);
-    esfera.calcularColores(2, [r1 ,g1, b1, 1, r2, g2, b2, 1]);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(esfera.colores), gl.STATIC_DRAW);
+    var colors = crearEsferaColores(1, Math.PI/32,r1,g1,b1,r2,g2,b2);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 	triangleVertexColorBuffer.itemSize = 4;
-    triangleVertexColorBuffer.numItems = esfera.colores.length / 4;
+    triangleVertexColorBuffer.numItems = colors.length / 4;
 	// Son 30 esferas. Se re calcula las translaciones para formar la elipse a partir de la misma esfera
 	for(var i = 0; i < 30; i++)
 	{			
@@ -418,10 +432,52 @@ function initBuffers()
   // Dibuja toda la escena
   function drawScene() 
   {
+	  
+	  
+	
+	
+	
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight); // Creamos la ventana
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Limpiamos el canvas 	
 	
+	pMatrix = mat4.create();
 	mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix); // Esto habla es de la perspectiva. 45 grados, la relación entre las dimensiones del viwport, el z minimo, el z maximo y la matriz que nos describe ls proyecciones
+	
+	for(var i = 0; i <4 ;i++)
+	{
+		var signo;
+		if(translacionParcial[i] > translacion[i])
+		{
+			translacionParcial[i] -= 0.4;
+			if (translacionParcial[i] < translacion[i])
+				translacionParcial[i] = translacion[i];
+		}
+		else if (translacionParcial[i] < translacion[i])
+		{
+			translacionParcial[i] += 0.4;
+			if (translacionParcial[i] > translacion[i])
+				translacionParcial[i] = translacion[i];
+		}
+		
+		if(rotacionpParcial[i] > rotacion[i])
+		{
+			rotacionpParcial[i] -= 1;
+			if (rotacionpParcial[i] < rotacion[i])
+				rotacionpParcial[i] = rotacion[i];
+		}
+		else if (rotacionpParcial[i] < rotacion[i])
+		{
+			rotacionpParcial[i] += 1;
+			if (rotacionpParcial[i] > rotacion[i])
+				rotacionpParcial[i] = rotacion[i];
+		}
+	}
+	
+	
+	mat4.translate(pMatrix, translacionParcial);
+	mat4.rotate(pMatrix, degToRad(rotacionpParcial[0]), [1,0,0]);
+	mat4.rotate(pMatrix, degToRad(rotacionpParcial[1]), [0,1,0]);
+	mat4.rotate(pMatrix, degToRad(rotacionpParcial[2]), [0,0,1]);
 	
 	mat4.identity(mvMatrixRotacion);
 	mat4.translate(mvMatrixRotacion, [0.0 , 0.0, -10]); // Nos
@@ -514,10 +570,119 @@ function initBuffers()
 	
 	
 	//Se dibujan todas las elipsess
-
+	drawElipse(-2,-1.3,0,1,0,0,0,0,1);
+	drawElipse(2,-1,0,0,1,0,1,0.4,0.5);
+	drawElipse(0,-2,-3,0,1,1,1,0,1);
+	drawElipse(0,-2.3,3,1,1,0,0,1,1);
+	
+	mvMatrix
+	
 	
   }
   
+function crearEsfera (radio, angulo)
+{
+	var vertices = [];
+	for(var fi = 0; fi  <= Math.PI; fi += angulo)
+	{
+		for (var tta = 0 ; tta <= 2 * Math.PI ; tta += angulo)
+		{
+				var Z1 = radio * Math.cos(fi - angulo);
+				var X1 = radio * Math.sin(fi - angulo)* Math.cos(tta - angulo)
+				var Y1 = radio * Math.sin(fi - angulo)* Math.sin(tta - angulo)
+				
+				var X2 = radio * Math.sin(fi - angulo)* Math.cos(tta)
+				var Y2 = radio * Math.sin(fi - angulo)* Math.sin(tta)
+				
+				var Z2 = radio * Math.cos(fi);
+				var X3 = radio * Math.sin(fi)* Math.cos(tta - angulo)
+				var Y3 = radio * Math.sin(fi)* Math.sin(tta - angulo)
+				
+				var X4 = radio * Math.sin(fi)* Math.cos(tta)
+				var Y4 = radio * Math.sin(fi)* Math.sin(tta)
+				
+				vertices.push(X1);
+				vertices.push(Y1);
+				vertices.push(Z1);
+				
+				vertices.push(X2);
+				vertices.push(Y2);
+				vertices.push(Z1);
+				
+				vertices.push(X3);
+				vertices.push(Y3);
+				vertices.push(Z2);
+				
+				vertices.push(X3);
+				vertices.push(Y3);
+				vertices.push(Z2);
+				
+				vertices.push(X4);
+				vertices.push(Y4);
+				vertices.push(Z2);
+				
+				vertices.push(X2);
+				vertices.push(Y2);
+				vertices.push(Z1);
+				
+		}
+	}
+	
+	return vertices;
+
+}
+function crearEsfera (radio, angulo)
+{
+	var vertices = [];
+	for(var fi = 0; fi  <= Math.PI ; fi += angulo)
+	{
+		for (var tta = 0 ; tta <= 2 * Math.PI ; tta += angulo)
+		{
+				var Z1 = radio * Math.cos(fi - angulo);
+				var X1 = radio * Math.sin(fi - angulo)* Math.cos(tta - angulo)
+				var Y1 = radio * Math.sin(fi - angulo)* Math.sin(tta - angulo)
+				
+				var X2 = radio * Math.sin(fi - angulo)* Math.cos(tta)
+				var Y2 = radio * Math.sin(fi - angulo)* Math.sin(tta)
+				
+				var Z2 = radio * Math.cos(fi);
+				var X3 = radio * Math.sin(fi)* Math.cos(tta - angulo)
+				var Y3 = radio * Math.sin(fi)* Math.sin(tta - angulo)
+				
+				var X4 = radio * Math.sin(fi)* Math.cos(tta)
+				var Y4 = radio * Math.sin(fi)* Math.sin(tta)
+				
+				vertices.push(X1);
+				vertices.push(Y1);
+				vertices.push(Z1);
+				
+				vertices.push(X2);
+				vertices.push(Y2);
+				vertices.push(Z1);
+				
+				vertices.push(X3);
+				vertices.push(Y3);
+				vertices.push(Z2);
+				
+				vertices.push(X3);
+				vertices.push(Y3);
+				vertices.push(Z2);
+				
+				vertices.push(X4);
+				vertices.push(Y4);
+				vertices.push(Z2);
+				
+				vertices.push(X2);
+				vertices.push(Y2);
+				vertices.push(Z1);
+				
+		}
+	}
+	
+	return vertices;
+
+
+}
 
 function crearCubo(longX, longY, longZ)
 {
@@ -674,5 +839,37 @@ function crearCubo(longX, longY, longZ)
 	return verticees;
 }
 
-
+function crearEsferaColores (radio, angulo, r1,g1,b1,r2,g2,b2)
+{
+	var vertices = [];
+	for(var fi = 0; fi  <= Math.PI; fi += angulo)
+	{
+		for (var tta = 0 ; tta <= 2 * Math.PI ; tta += angulo)
+		{
+				var rr = 0;
+				var gg = 0;
+				var bb = 0;
+				if(fi <= Math.PI/2)
+				{
+					rr=r1;
+					gg=g1;
+					bb=b1;
+				}
+				else
+				{
+					rr=r2;
+					gg=g2;
+					bb=b2;
+				}
+				for(var tt = 0; tt <6; tt++)
+				{
+					vertices.push(rr);
+					vertices.push(gg);
+					vertices.push(bb);
+					vertices.push(1);
+				}
+		}
+	}
+	return vertices;
+}
 
