@@ -103,7 +103,7 @@ function calcularBufferCurva(cantidadPuntos)
 	var colores = [];
 	var paso = 1 / cantidadPuntos;
 	var conteo = 0;
-	for(var i = 0; i <= 1 ; i += paso)
+	for(var i = 0; i <= 0.999 + paso ; i += paso)
 	{	
 		vertices.push(0);
 		vertices.push(0);
