@@ -2,7 +2,7 @@
 // Modificaciones de camara
 var rotacionPrimeraPersona;
 var translacion = [0, 0, 0, 0];
-var rotacion = [degToRad(1), 0, 0, 0];
+var rotacion = [0, 0, 0, 0];
 var translacionParcial = [0, 0, 0, 0];
 var rotacionpParcial = [0, 0, 0, 0];
 

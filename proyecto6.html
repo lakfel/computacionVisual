@@ -5,13 +5,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>JFGA-CV</title>
+    <title>Proyecto 6</title>
 <!--
 Neaty HTML Template
 http://www.templatemo.com/tm-501-neaty
 -->
     <!-- load stylesheets -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400">  <!-- Google web font "Open Sans" -->
+	<script src = "https://rawgit.com/Falkulator/3D-multi-shmup-prototype/master/public/javascripts/glMatrix-0.9.5.min.js"></script>
+	<script src = "proyecto6/glMatrix-0.9.5.min.js"></script>
+	<script src = "proyecto6/webglEx.js"></script>
+	<script src = "proyecto6/webgl-utils.js"></script>
     <link rel="stylesheet" href="css/bootstrap.min.css">                                      <!-- Bootstrap style -->
     <link rel="stylesheet" href="css/magnific-popup.css">                                <!-- Magnific pop up style, http://dimsemenov.com/plugins/magnific-popup/ -->
     <link rel="stylesheet" href="css/templatemo-style.css">                                   <!-- Templatemo style -->
@@ -23,7 +27,7 @@ http://www.templatemo.com/tm-501-neaty
           <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
           <![endif]-->
 </head>
-    <body>        
+    <body onload = 'webGLStart()'>        
         <div class="container">
             <div class="row">
                 <div class="tm-left-right-container">
@@ -31,7 +35,7 @@ http://www.templatemo.com/tm-501-neaty
                     <div class="tm-blue-bg tm-left-column">                        
                         <div class="tm-logo-div text-xs-center">
 							</br>
-                            <img id = "FotoPrincipal" src="img/foto3.jpg" alt="Johann Felipe González Ávila"  data-rotate="90">
+                             <a href = "index.html"><img  id = "FotoPrincipal" src="img/foto3.jpg" alt="Johann Felipe González Ávila"  data-rotate="90"></a>
 							</br>
 							</br>
                             <h1 class="tm-site-name">Johann Felipe González Ávila</h1>
@@ -41,12 +45,12 @@ http://www.templatemo.com/tm-501-neaty
                         <nav class="tm-main-nav">
                             <ul class="tm-main-nav-ul">
                                 <li class="tm-nav-item">
-                                    <a href="#Presentacion" class="tm-nav-item-link">¿Qué es esto?</a>
+                                    <a href="index.html" class="tm-nav-item-link">¿Qué es esto?</a>
                                 </li>
                                 <li class="tm-nav-item">
-                                    <a href="#Proyectos" class="tm-nav-item-link">Proyectos</a>
+                                    <a href="index.html" class="tm-nav-item-link">Proyectos</a>
                                 </li>
-                              
+                                
                             </ul>
                         </nav>                                         
                     </div> <!-- Left column: logo and menu -->
@@ -61,70 +65,79 @@ http://www.templatemo.com/tm-501-neaty
                             <!-- Welcome section -->
                             <section id="Presentacion" class="tm-section">
                                 <header>
-                                    <h2 class="tm-blue-text tm-welcome-title tm-margin-b-45">¿Qué es esto?</h2>
+                                    <h2 class="tm-blue-text tm-welcome-title tm-margin-b-45">Cambio de cámaras</h2>
                                 </header>
-                                <p>Hola!!!</br>Este blog lo creo para poder compartir los trabajos realizados en la materia <a href = "https://cursos.virtual.uniandes.edu.co/isis4823/">Computación Visual Interactiva</a> de la <a href = "https://uniandes.edu.co/">Universidad de los Andes</a>.</p>
-								<p>Es un pequeño recorrido sobre lo que es la visualización 2D y 3D en webGl</p>
+                                <p>En esta ocasión les presento un demo de una figura irregular que se translada por medio de un camino formado por las llamadas <a href = "https://es.wikipedia.org/wiki/Curva_de_B%C3%A9zier"> Curva de Bézier</a>. El desarrollo ha  sido completamente propio. </p>
+								<p> Para hacerlo más atractivo le he agregado 3 elementos de interacción que pueden utilziar.
+								<ul>
+									<li><strong> Número de puntos </strong> En el costado izquierdo encuentran dos botones de más y menos. Estos controlan los puntos adicionales a los de partida. En principio no hay límite de puntos extra </li>
+									<li><strong> Posicion puntos </strong> La posición de los puntos es modificable y funciona con un Drag and drop. Este está fallando un poco en ocasiones por loq ue si no funciona, les pido refrescar la pantalla e intentarlo nuevamente. Lo que falla es la posición.<-li>
+									<li><strong> La cantidad de puntos sobre la curva </strong> La curva puede ser mas o menos fina con el slider en la parte de abajo.</li>
+								</ul></p>
+	
+								
+								<script id="shader-fs" type="x-shader/x-fragment">
+								  precision mediump float;
+								  varying vec4 vColor;
+								  void main(void) {
+									gl_FragColor = vColor;
+								  }
+								</script>
+							
+							
+							
+								
+								<script id="shader-vs" type="x-shader/x-vertex">
+								  attribute vec3 aVertexPosition; // Esto son atributos. Var[ian de vertice en vertice
+								  attribute vec4 aVertexColor;
+
+								  uniform mat4 uMVMatrix; // Elementos fijos para todos los vertices	
+								  uniform mat4 uPMatrix;
+
+								  varying vec4 vColor; // Salidas de este shader en varyng // Primero corre el vertex y liego el fragment
+								  
+								  void main(void) {
+									gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+									gl_PointSize = 10.0;
+									vColor = aVertexColor;
+								  }
+								</script>
+								
+								
+								
+								<table>
+									<tr>
+										<td >
+											<input height="200" class= "tm-button" type="button" id="btnMas" value="+"></input>
+											<div height="20%">
+												<p id="lblCantidad">
+												
+												<p>
+											</div>
+										
+											<input height="40%" class= "tm-button"  type="button" id="btnMenos" value="-"></input>
+										<td>
+										<td>
+											<canvas id = "miCanvas" width="800" height="500"></canvas>
+											<p>Cantidad de puntos</p>
+											<p id = "lblPuntos"></p>
+											<input width="800" type="range" min="2" max="100" value="50" class="slider" id="myRange">
+										</td>
+									</tr>
+									
+								</table>
+								
+								<p>
+									Para lograr esto se jugó con la matriz de proyección en posición y rotación. Como se nota, los efectos son suaves, luego los cambios se realizan graduales por medio de matrices intermedias. Para esto creamos 4 botones para manejar las vistas. de la siguiente manera.
+								</p>
+							
+							
+							
+
                             </section>
-                            <!-- About section -->
-                            <section id="Proyectos" class="tm-section">
-                                
-								<header>
-									<h2 class="tm-blue-text tm-section-title tm-margin-b-45">Proyectos</h2>
-								</header>
-								<p>En esta sección puede encontrar los proyetos realizados</p>
-								
-								<header>
-									<h3 class="tm-blue-text tm-margin-b-45">     Trabajo 1. Comparación de tecnologías.</h3>
-									<p> En esta entrada solo visualizaremos las diferencias entre dos tipos de tecnolog[ias para la visualziación de elementos en 3D sobre un browser. En este caso WebGl y Processing.<a href = "proyecto1.html"> Proyecto 1</a>
-								</header>
-								
-								<header>
-									<h3 class="tm-blue-text tm-margin-b-45">     Trabajo 2. Figura básica.</h3>
-									<p> Con las primitivas de WebGl creamos una esfera.<a href = "proyecto2.html"> Proyecto 2</a>
-								</header>
-								
-								<header>
-									<h3 class="tm-blue-text tm-margin-b-45">     Trabajo 3. Interacción.</h3>
-									<p> Realizar un ejemplo que tenga algún tipo de interacción con eventos mouse.<a href = "proyecto3.html"> Proyecto 3</a>
-								</header>
-								
-								<header>
-									<h3 class="tm-blue-text tm-margin-b-45">     Trabajo 4. Primitivas con posiciones relativas.</h3>
-									<p> Realizar un ejemplo que tenga primitivas y movimientos relativos.<a href = "proyecto4.html"> Proyecto 4</a>
-								</header>
-								
-								
-								<header>
-									<h3 class="tm-blue-text tm-margin-b-45">     Trabajo 5. Trabajo con cámaras.</h3>
-									<p> Juego de cámaras.<a href = "proyecto5.html"> Proyecto 5</a>
-								</header>
-								
-								<header>
-								
-								<h3 class="tm-blue-text tm-margin-b-45">     Trabajo 6. Figura asimétrica</h3>
-									<p> Realizar el cargue de una figura asimétrica.<a href = "proyecto6.html"> Proyecto 6</a>
-								</header>
-
-								
-								<header>
-									<h3 class="tm-blue-text tm-margin-b-45">     Ejemplo explicativo.</h3>
-									<p> Buscar un Ejemplo y explicarlo a clase <a href = "ejemplo.html"> ejemplo</a>
-								</header>
-
-								
-                                    <!--div class="col-lg-4 col-md-5 col-sm-12 col-xs-12 pull-lg-8 pull-md-7 tm-about-img-container">
-                                        <img src="img/neaty-02.jpg" alt="Image" class="img-fluid">    
-                                    </div-->  
-                                                           
-                            </section>  
-
-                          
-                            <footer>
-                                <!--p class="tm-copyright-p">Copyright &copy; <span class="tm-current-year">2017</span> Your Company 
-                                
-                                | Designed by <a href="http://www.templatemo.com" target="_parent">templatemo</a></p-->
-                            </footer>
+                           
+                       
+               
                         </div>  
                         
                     </div> <!-- Right column: content -->
@@ -136,7 +149,8 @@ http://www.templatemo.com/tm-501-neaty
         <script src="js/jquery-1.11.3.min.js"></script>             <!-- jQuery (https://jquery.com/download/) -->
         <script src="js/jquery.magnific-popup.min.js"></script>     <!-- Magnific pop-up (http://dimsemenov.com/plugins/magnific-popup/) -->
         <script src="js/jquery.singlePageNav.min.js"></script>      <!-- Single Page Nav (https://github.com/ChrisWojcik/single-page-nav) -->
-        <script>     
+        
+		<script>     
        
             $(document).ready(function(){
 
