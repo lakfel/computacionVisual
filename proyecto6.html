@@ -71,9 +71,9 @@ http://www.templatemo.com/tm-501-neaty
                                 <p>En esta ocasión les presento un demo de una figura irregular que se translada por medio de un camino formado por las llamadas <a href = "https://es.wikipedia.org/wiki/Curva_de_B%C3%A9zier"> Curva de Bézier</a>. El desarrollo ha  sido completamente propio. </p>
 								<p> Para hacerlo más atractivo le he agregado 3 elementos de interacción que pueden utilziar.
 								<ul>
-									<li><strong> Número de puntos </strong> En el costado izquierdo encuentran dos botones de más y menos. Estos controlan los puntos adicionales a los de partida. En principio no hay límite de puntos extra </li>
-									<li><strong> Posicion puntos </strong> La posición de los puntos es modificable y funciona con un Drag and drop. Este está fallando un poco en ocasiones por loq ue si no funciona, les pido refrescar la pantalla e intentarlo nuevamente. Lo que falla es la posición.<-li>
-									<li><strong> La cantidad de puntos sobre la curva </strong> La curva puede ser mas o menos fina con el slider en la parte de abajo.</li>
+									<li><strong> Número de puntos: </strong> En el costado izquierdo encuentran dos botones de más y menos. Estos controlan los puntos adicionales a los de partida. En principio no hay límite de puntos extra </li>
+									<li><strong> Posicion puntos: </strong> La posición de los puntos es modificable y funciona con un Drag and drop. Se ha modificado el código para calcular las posicones de los objetos de manera absoluta.</li>
+									<li><strong> La cantidad de puntos sobre la curva: </strong> La curva puede ser mas o menos fina con el slider en la parte de abajo.</li>
 								</ul></p>
 	
 								
@@ -161,8 +161,9 @@ http://www.templatemo.com/tm-501-neaty
 								<header>
                                     <h3 class="tm-blue-text tm-margin-b-45">Drag and drop</h2>
                                 </header>
-								<p>Para el drog and drap primero se trato de ubicar el punto que se estaba oprimiendo. En un SVG esta tarea es más facil pues ahí se crean los elementos y se puede crear el evento individualizado. En este caso se trata de buscar bajo que punto se hizo click. Como los elementos de proyección no funcionaron se hizo empíricamente por lo que se generan errores</p>
-								<img src = "proyecto6/img/figura6.png"></img>
+								<p>Para el drog and drap primero se trato de ubicar el punto que se estaba oprimiendo. En un SVG esta tarea es más facil pues ahí se crean los elementos y se puede crear el evento individualizado. Se hace una matemática inversa para entender los puntos sobre el canvas a partir de los puntos absolutos.</p>
+								<img src = "proyecto6/img/figura6_1.png"></img>
+								<img src = "proyecto6/img/figura6_2.png"></img>
 								<p>El método de buscarDrag busca si el click está en la vecindad de alguno de los puntos y devuelve la posición dentro del arreglo de puntos.</p>
 								<header>
                                     <h3 class="tm-blue-text tm-margin-b-45">La curva.</h2>

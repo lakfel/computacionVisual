@@ -36,11 +36,15 @@ var pMatrix = mat4.create();
 var shaderProgram;
 var conteo;
 
+var lastX = 0;
+var lastY = 0;
 
 
 var rSquare;
 
 var dragging;
+var draggingPoint;
+
 var isCursorOverPoint;
 var posicionDrag;
 
@@ -275,8 +279,14 @@ function webGLStart()
 	 posicionDrag = buscarDrag(obj[0]*obj[2],-1*obj[1]*obj[2]);
 	
 	 
-     dragging = posicionDrag > 0;
- 
+     dragging = true;
+	 
+	 draggingPoint = posicionDrag > 0;
+	 if(!draggingPoint)
+		{
+			 lastX = ev.clientX;
+			lastY = ev.clientY;
+		}
      
    };
  
@@ -289,13 +299,27 @@ function webGLStart()
      var y = -5.8*(ev.clientY - canvasLT.top-250)/500;
      if(dragging) 
 	{
-		puntosControlPosicion[posicionDrag*3] = x;
-		puntosControlPosicion[posicionDrag*3 + 1] = y;
+		if(draggingPoint) 
+		{
+			puntosControlPosicion[posicionDrag*3] = x;
+			puntosControlPosicion[posicionDrag*3 + 1] = y;
 
-		/*var iDiv = document.getElementById('pun' + posicionDrag);
-		var dat = canvasToHtml(x,y);
-		iDiv.style.top = (dat.y+20) + "px";
-		iDiv.style.left = dat.x+ "px";*/
+			/*var iDiv = document.getElementById('pun' + posicionDrag);
+			var dat = canvasToHtml(x,y);
+			iDiv.style.top = (dat.y+20) + "px";
+			iDiv.style.left = dat.x+ "px";*/
+		}
+		else
+		{
+			//var nX = ev.clientX;
+			//var nY = ev.clientX;
+			//mat4.translate(pMatrix, [0,0,7]);
+			//mat4.rotate(pMatrix, degToRad(lastX - nX)/100, [0,1,0]);
+			//mat4.rotate(pMatrix, degToRad(lastY - nY)/100, [0,0,1]);
+			//mat4.translate(pMatrix, [0,0,-7]);
+			//lastX = nX;	
+			//		lastY = nY;
+		}
     }
  
    };
