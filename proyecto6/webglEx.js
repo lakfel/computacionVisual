@@ -76,6 +76,9 @@ function initShaders()
 
 	shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 	shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+	
+	pMatrix = mat4.create();
+	mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix); 
 }
 
 function buscarDrag(x,y)
@@ -230,10 +233,46 @@ function webGLStart()
 	var canvasLT = canvas.getBoundingClientRect();
 	canvas.onmousedown = function(ev) 
 	{  //Mouse is pressed
+
+		var xw = ev.clientX - canvasLT.left;
+		var yw = ev.clientY - canvasLT.top;
+		
+		// Encontramos el ndc
+		
+		var xndc = (xw - gl.viewportWidth/2)*2/gl.viewportWidth
+		var yndc = (yw - gl.viewportHeight/2)*2/gl.viewportHeight
+
+		// Encontramos los clip
+
+		var xclip = xndc * 1.15;
+		var yclip = yndc * 1.15;
+
+		// Encontramos eyes
+
+		var pos = [xclip, yclip, 0	, 1];
+		var eyes = [];
+		
+		var pMat = mat4.create();
+		mat4.inverse(pMatrix, pMat);
+
+		mat4.multiplyVec3(pMat, pos, eyes);
+
+		// Calculamos   obj
+
+		var mvMat = mat4.create();
+		mat4.identity(mvMat);
+		mat4.translate(mvMat, [0,0,-7]);
+		mat4.inverse(mvMat, mvMat);
+
+		var obj = [];
+		mat4.multiplyVec3(mvMat, eyes, obj);
+	
+
+		
      var x = 9.3*(ev.clientX - canvasLT.left-400)/800;
      var y = -5.8*(ev.clientY - canvasLT.top-250)/500;
 	
-	 posicionDrag = buscarDrag(x,y);
+	 posicionDrag = buscarDrag(obj[0]*obj[2],-1*obj[1]*obj[2]);
 	
 	 
      dragging = posicionDrag > 0;
@@ -395,11 +434,11 @@ function initBuffers()
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Limpiamos el canvas 	
   
 	
-	pMatrix = mat4.create();
+	
 	mvMatrix = mat4.create();
 	mat4.identity(mvMatrix);
 	mat4.translate(mvMatrix, [0.0, 0.0, -7.0]);
-	mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix); 
+	
 			
 	
 	

@@ -13,6 +13,7 @@ http://www.templatemo.com/tm-501-neaty
     <!-- load stylesheets -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400">  <!-- Google web font "Open Sans" -->
 	<script src = "https://rawgit.com/Falkulator/3D-multi-shmup-prototype/master/public/javascripts/glMatrix-0.9.5.min.js"></script>
+	<script src = "https://cdnjs.cloudflare.com/ajax/libs/mathjs/4.0.1/math.js"></script>
 	<script src = "proyecto6/glMatrix-0.9.5.min.js"></script>
 	<script src = "proyecto6/webglEx.js"></script>
 	<script src = "proyecto6/webgl-utils.js"></script>
@@ -115,12 +116,16 @@ http://www.templatemo.com/tm-501-neaty
 										<td>
 										<td>
 											<canvas id = "miCanvas" width="800" height="500"></canvas>
+										</td>
+									</tr>
+									<tr>
+										<td width = "100%">
 											<p>Cantidad de puntos</p>
 											<p id = "lblPuntos"></p>
 											<input width="800" type="range" min="2" max="100" value="50" class="slider" id="myRange">
 										</td>
+										<td width = "1%"></td>
 									</tr>
-									
 								</table>
 								
 								<p>
