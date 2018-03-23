@@ -16,8 +16,7 @@ var puntosControlPositionBuffer;
 var puntosControlColorBuffer;
 var puntosControlColor = [];
 
-var puntoInicial = [-5, 0 ,0];
-var puntoFinal = [5,0 ,0];
+var puntos;
 
 // Arreglo y buffer puntos para construcción de figura
 var puntosConstruccionPosicion = [];
@@ -37,7 +36,7 @@ var pMatrix = mat4.create();
 var shaderProgram;
 var conteo;
 
-var puntos;
+
 
 var rSquare;
 
@@ -254,10 +253,10 @@ function webGLStart()
 		puntosControlPosicion[posicionDrag*3] = x;
 		puntosControlPosicion[posicionDrag*3 + 1] = y;
 
-		var iDiv = document.getElementById('pun' + posicionDrag);
+		/*var iDiv = document.getElementById('pun' + posicionDrag);
 		var dat = canvasToHtml(x,y);
 		iDiv.style.top = (dat.y+20) + "px";
-		iDiv.style.left = dat.x+ "px";
+		iDiv.style.left = dat.x+ "px";*/
     }
  
    };
@@ -289,14 +288,14 @@ function webGLStart()
 
 		puntos++;
 
-		var iDiv = document.createElement('div');
+		/*var iDiv = document.createElement('div');
 		iDiv.id = 'pun' + puntos;
 		iDiv.innerHTML = 'P' + puntos;
 		var dat = canvasToHtml(xx,yy);
 		iDiv.style.position = 'absolute';
 		iDiv.style.top = (dat.y+20) + "px";
 		iDiv.style.left = dat.x+ "px";
-		document.getElementsByTagName('body')[0].appendChild(iDiv);
+		document.getElementsByTagName('body')[0].appendChild(iDiv);*/
 		
 	});
 
