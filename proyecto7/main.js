@@ -98,7 +98,8 @@
     var canTexture;
 	var topCanTexture;
 	var bottomCanTexture;
-
+	var ballTexture;
+	
     function initTexture() {
         canTexture = gl.createTexture();
         canTexture.image = new Image();
@@ -123,6 +124,16 @@
         }
 
         bottomCanTexture.image.src = "proyecto7/bottomCan.jpg";
+		
+		ballTexture = gl.createTexture();
+        ballTexture.image = new Image();
+        ballTexture.image.onload = function () {
+            handleLoadedTexture(ballTexture)
+        }
+
+        //ballTexture.image.src = "proyecto7/soccerBall.png";
+		//ballTexture.image.src = "proyecto7/soccerBall3.jpg";
+		ballTexture.image.src = "proyecto7/soccerBall2.jpg";
     }
 
 
@@ -161,6 +172,10 @@
 	var canTopVertexPositionBuffer;
     var canTopVertexTextureCoordBuffer;
     var canTopVertexIndexBuffer;
+	
+	var ballVertexPositionBuffer;
+    var ballVertexTextureCoordBuffer;
+    var ballVertexIndexBuffer;
 
     function initBuffers() {
         canVertexPositionBuffer = gl.createBuffer();
@@ -168,7 +183,7 @@
 		
 		var lata = crearAro(36,2.5,0.7);
 		var tapa = crearCirculo(36,0.7);
-		
+		var bola = crearEsfera(36, 0.7);
 		
         var vertices = [
             // Front face
@@ -292,6 +307,27 @@
         canTopVertexIndexBuffer.itemSize = 1;
         canTopVertexIndexBuffer.numItems = cubeVertexIndices.length;
 		
+		ballVertexPositionBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER,ballVertexPositionBuffer);
+		vertices = bola.vertices;
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+		ballVertexPositionBuffer.itemSize = 3;
+		ballVertexPositionBuffer.numItems = vertices.length/3;
+		
+		ballVertexTextureCoordBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER,ballVertexTextureCoordBuffer);
+		textureCoords = bola.textCords;
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
+		ballVertexTextureCoordBuffer.itemSize = 2;
+        ballVertexTextureCoordBuffer.numItems = textureCoords.length/2	;
+		
+		ballVertexIndexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ballVertexIndexBuffer);
+		cubeVertexIndices = bola.coords;
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
+        ballVertexIndexBuffer.itemSize = 1;
+        ballVertexIndexBuffer.numItems = cubeVertexIndices.length;
+		
 		
     }
 
@@ -300,7 +336,8 @@
     var yRot = 0;
     var zRot = 0;
 
-    function drawScene() {
+    function drawScene()
+	{
         gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -311,8 +348,8 @@
         mat4.translate(mvMatrix, [0.0, 0.0, -5.0]);
 
         mat4.rotate(mvMatrix, degToRad(xRot), [1, 0, 0]);
-        //mat4.rotate(mvMatrix, degToRad(yRot), [0, 1, 0]);
-        //mat4.rotate(mvMatrix, degToRad(zRot), [0, 0, 1]);
+        mat4.rotate(mvMatrix, degToRad(yRot), [0, 1, 0]);
+        mat4.rotate(mvMatrix, degToRad(zRot), [0, 0, 1]);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, canVertexPositionBuffer);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, canVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -326,12 +363,12 @@
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, canVertexIndexBuffer);
         setMatrixUniforms();
-        gl.drawElements(gl.TRIANGLES, canVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        //gl.drawElements(gl.TRIANGLES, canVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		
 		
 		//TAPA 
 		
-		mat4.translate(mvMatrix, [0.0, 1.25, 0.0]);
+		//mat4.translate(mvMatrix, [0.0, 1.25, 0.0]);
 		
 		gl.bindBuffer(gl.ARRAY_BUFFER, canTopVertexPositionBuffer);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, canTopVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -345,10 +382,10 @@
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, canTopVertexIndexBuffer);
         setMatrixUniforms();
-        gl.drawElements(gl.TRIANGLES, canTopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        //gl.drawElements(gl.TRIANGLES, canTopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		
 		
-		mat4.translate(mvMatrix, [0.0, -2.5, 0.0]);
+		//mat4.translate(mvMatrix, [0.0, -2.5, 0.0]);
 	
 		
 		
@@ -357,8 +394,22 @@
         gl.uniform1i(shaderProgram.samplerUniform, 0);
 
         setMatrixUniforms();
-        gl.drawElements(gl.TRIANGLES, canTopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        //gl.drawElements(gl.TRIANGLES, canTopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, ballVertexPositionBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, ballVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, ballVertexTextureCoordBuffer);
+        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, ballVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, ballTexture);
+        gl.uniform1i(shaderProgram.samplerUniform, 0);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ballVertexIndexBuffer);
+        setMatrixUniforms();
+        gl.drawElements(gl.TRIANGLES, ballVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		
 		
     }
@@ -493,3 +544,82 @@
 		return ret;
 		
 	}
+	
+	function crearEsfera (pisos, r)
+	{
+		var vertices = [];
+		var paso = 2*Math.PI/pisos;
+		var paso2 = 1 / pisos;
+		var coords = [];
+		var textCords = [];
+		
+		for(var i = 0; i   <  pisos/2  ; i++)
+		{
+		for (var j = 0 ; j  < pisos ; j++)
+			{	
+		
+				vertices.push(r*Math.sin(i*paso) * Math.cos(j*paso));
+				vertices.push(r*Math.sin(i*paso) * Math.sin(j*paso));
+				vertices.push(r*Math.cos(i*paso));
+				
+				vertices.push(r*Math.sin(i*paso) * Math.cos((j+1)*paso));
+				vertices.push(r*Math.sin(i*paso) * Math.sin((j+1)*paso));
+				vertices.push(r*Math.cos(i*paso));
+				
+				vertices.push(r*Math.sin((i+1)*paso) * Math.cos((j+1)*paso));
+				vertices.push(r*Math.sin((i+1)*paso) * Math.sin((j+1)*paso));
+				vertices.push(r*Math.cos((i+1)*paso));
+				
+				vertices.push(r*Math.sin((i+1)*paso) * Math.cos((j)*paso));
+				vertices.push(r*Math.sin((i+1)*paso) * Math.sin((j)*paso));
+				vertices.push(r*Math.cos((i+1)*paso));
+				
+				coords.push(i*pisos*4 + j*4);
+				coords.push(i*pisos*4 + j*4 + 3);
+				coords.push(i*pisos*4 + j*4 + 1);
+				
+				coords.push(i*pisos*4 + j*4 + 1);
+				coords.push(i*pisos*4 + j*4 + 3);
+				coords.push(i*pisos*4 + j*4 + 2);
+				
+				/*textCords.push(i*paso /Math.PI) ;
+				textCords.push(j*paso /(Math.PI*2)) ;
+				
+				textCords.push(i*paso /Math.PI) ;
+				textCords.push((j+1)*paso /(Math.PI*2)) ;
+				
+				textCords.push((i+1)*paso /Math.PI) ;
+				textCords.push((j+1)*paso /(Math.PI*2)) ;
+				
+				textCords.push((i+1)*paso /Math.PI) ;
+				textCords.push(j*paso /(Math.PI*2)) ;
+				*/
+				textCords.push(0.5 + 0.5 * r*Math.sin(i*paso) * Math.cos(j*paso) /(1 - r*Math.cos(i*paso))) ;
+				textCords.push(0.5 + 0.5 *r*Math.sin(i*paso) * Math.sin(j*paso) /(1 - r*Math.cos(i*paso))) ;
+				
+				textCords.push(0.5 + 0.5 * r*Math.sin(i*paso) * Math.cos((j+1)*paso) /(1 - r*Math.cos(i*paso))) ;
+				textCords.push(0.5 + 0.5 *r*Math.sin(i*paso) * Math.sin((j+1)*paso) /(1 - r*Math.cos(i*paso))) ;
+				
+				textCords.push(0.5 + 0.5 * r*Math.sin((i+1)*paso) * Math.cos((j+1)*paso) /(1 - r*Math.cos((i+1)*paso))) ;
+				textCords.push(0.5 + 0.5 *r*Math.sin((i+1)*paso) * Math.sin((j+1)*paso) /(1 - r*Math.cos((i+1)*paso))) ;
+				
+				textCords.push(0.5 + 0.5 * r*Math.sin((i+1)*paso) * Math.cos(j*paso) /(1 - r*Math.cos((i+1)*paso))) ;
+				textCords.push(0.5 + 0.5 *r*Math.sin((i+1)*paso) * Math.sin(j*paso) /(1 - r*Math.cos((i+1)*paso))) ;
+				/*
+				textCords.push(1-2*i/pisos) ;
+				textCords.push(1- j /(pisos)) ;
+				
+				textCords.push(1-2*i/pisos) ;
+				textCords.push(1- (j+1) /(pisos)) ;
+
+				textCords.push(1-2*(i+1)/pisos) ;
+				textCords.push(1- (j+1) /(pisos)) ;
+
+				textCords.push(1-2*(i+1)/pisos) ;
+				textCords.push(1- j /(pisos)) ;
+				*/
+			}
+		}
+		var ret = {vertices : vertices, coords : coords, textCords : textCords};
+		return ret;
+	};
