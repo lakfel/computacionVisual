@@ -91,20 +91,38 @@
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     
-        gl.bindTexture(gl.TEXTURE_2D, null);
+        //gl.bindTexture(gl.TEXTURE_2D, null);
     }
 
 
-    var neheTexture;
+    var canTexture;
+	var topCanTexture;
+	var bottomCanTexture;
 
     function initTexture() {
-        neheTexture = gl.createTexture();
-        neheTexture.image = new Image();
-        neheTexture.image.onload = function () {
-            handleLoadedTexture(neheTexture)
+        canTexture = gl.createTexture();
+        canTexture.image = new Image();
+        canTexture.image.onload = function () {
+            handleLoadedTexture(canTexture)
         }
 
-        neheTexture.image.src = "proyecto7/cocacolaCan2.jpg";
+        canTexture.image.src = "proyecto7/cocacolaCan2.jpg";
+		
+		topCanTexture = gl.createTexture();
+        topCanTexture.image = new Image();
+        topCanTexture.image.onload = function () {
+            handleLoadedTexture(topCanTexture)
+        }
+
+        topCanTexture.image.src = "proyecto7/topCan.jpg";
+		
+		bottomCanTexture = gl.createTexture();
+        bottomCanTexture.image = new Image();
+        bottomCanTexture.image.onload = function () {
+            handleLoadedTexture(bottomCanTexture)
+        }
+
+        bottomCanTexture.image.src = "proyecto7/bottomCan.jpg";
     }
 
 
@@ -136,17 +154,23 @@
         return degrees * Math.PI / 180;
     }
 
-    var cubeVertexPositionBuffer;
-    var cubeVertexTextureCoordBuffer;
-    var cubeVertexIndexBuffer;
+    var canVertexPositionBuffer;
+    var canVertexTextureCoordBuffer;
+    var canVertexIndexBuffer;
+	
+	var canTopVertexPositionBuffer;
+    var canTopVertexTextureCoordBuffer;
+    var canTopVertexIndexBuffer;
 
     function initBuffers() {
-        cubeVertexPositionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
+        canVertexPositionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, canVertexPositionBuffer);
 		
 		var lata = crearAro(36,2.5,0.7);
+		var tapa = crearCirculo(36,0.7);
 		
-        vertices = [
+		
+        var vertices = [
             // Front face
             -1.0, -1.0,  1.0,
              1.0, -1.0,  1.0,
@@ -185,11 +209,11 @@
         ];
 		vertices = lata.vertices;
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-        cubeVertexPositionBuffer.itemSize = 3;
-        cubeVertexPositionBuffer.numItems = vertices.length/3;
+        canVertexPositionBuffer.itemSize = 3;
+        canVertexPositionBuffer.numItems = vertices.length/3;
 
-        cubeVertexTextureCoordBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer);
+        canVertexTextureCoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, canVertexTextureCoordBuffer);
         var textureCoords = [
           // Front face
           0.0, 0.0,
@@ -229,11 +253,11 @@
         ];
 		textureCoords = lata.textCords;
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
-        cubeVertexTextureCoordBuffer.itemSize = 2;
-        cubeVertexTextureCoordBuffer.numItems = textureCoords.length/2	;
+        canVertexTextureCoordBuffer.itemSize = 2;
+        canVertexTextureCoordBuffer.numItems = textureCoords.length/2	;
 
-        cubeVertexIndexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
+        canVertexIndexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, canVertexIndexBuffer);
         var cubeVertexIndices = [
             0, 1, 2,      0, 2, 3,    // Front face
             4, 5, 6,      4, 6, 7,    // Back face
@@ -244,8 +268,31 @@
         ];
 		cubeVertexIndices = lata.coords;
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
-        cubeVertexIndexBuffer.itemSize = 1;
-        cubeVertexIndexBuffer.numItems = cubeVertexIndices.length;
+        canVertexIndexBuffer.itemSize = 1;
+        canVertexIndexBuffer.numItems = cubeVertexIndices.length;
+		
+		canTopVertexPositionBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER,canTopVertexPositionBuffer);
+		vertices = tapa.vertices;
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+		canTopVertexPositionBuffer.itemSize = 3;
+		canTopVertexPositionBuffer.numItems = vertices.length/3;
+		
+		canTopVertexTextureCoordBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER,canTopVertexTextureCoordBuffer);
+		textureCoords = tapa.textCords;
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
+		canTopVertexTextureCoordBuffer.itemSize = 2;
+        canTopVertexTextureCoordBuffer.numItems = textureCoords.length/2	;
+		
+		canTopVertexIndexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, canTopVertexIndexBuffer);
+		cubeVertexIndices = tapa.coords;
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
+        canTopVertexIndexBuffer.itemSize = 1;
+        canTopVertexIndexBuffer.numItems = cubeVertexIndices.length;
+		
+		
     }
 
 
@@ -264,22 +311,56 @@
         mat4.translate(mvMatrix, [0.0, 0.0, -5.0]);
 
         mat4.rotate(mvMatrix, degToRad(xRot), [1, 0, 0]);
-        mat4.rotate(mvMatrix, degToRad(yRot), [0, 1, 0]);
-        mat4.rotate(mvMatrix, degToRad(zRot), [0, 0, 1]);
+        //mat4.rotate(mvMatrix, degToRad(yRot), [0, 1, 0]);
+        //mat4.rotate(mvMatrix, degToRad(zRot), [0, 0, 1]);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, canVertexPositionBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, canVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer);
-        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, canVertexTextureCoordBuffer);
+        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, canVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, neheTexture);
+        gl.bindTexture(gl.TEXTURE_2D, canTexture);
         gl.uniform1i(shaderProgram.samplerUniform, 0);
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, canVertexIndexBuffer);
         setMatrixUniforms();
-        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, canVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+		
+		
+		//TAPA 
+		
+		mat4.translate(mvMatrix, [0.0, 1.25, 0.0]);
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, canTopVertexPositionBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, canTopVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, canTopVertexTextureCoordBuffer);
+        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, canTopVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, topCanTexture);
+        gl.uniform1i(shaderProgram.samplerUniform, 0);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, canTopVertexIndexBuffer);
+        setMatrixUniforms();
+        gl.drawElements(gl.TRIANGLES, canTopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+		
+		
+		mat4.translate(mvMatrix, [0.0, -2.5, 0.0]);
+	
+		
+		
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, bottomCanTexture);
+        gl.uniform1i(shaderProgram.samplerUniform, 0);
+
+        setMatrixUniforms();
+        gl.drawElements(gl.TRIANGLES, canTopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+		
+		
+		
     }
 
 
@@ -367,4 +448,48 @@
 		
 		var ret = {vertices : vertices, coords : coords, textCords : textCords};
 		return ret;
+	}
+	
+	function crearCirculo(cantidadCuadros, r)
+	{
+		var vertices = [];
+		var coords = [];
+		var textCords = [];
+		var paso = 2*Math.PI / cantidadCuadros;
+		var pasoText = 1 / cantidadCuadros;
+		
+		vertices.push(0);
+		vertices.push(0);
+		vertices.push(0);
+		
+		textCords.push(0.5);
+		textCords.push(0.5);
+		
+		for(var i =0; i < cantidadCuadros; i++)
+		{
+			
+			
+			vertices.push(r*Math.cos(paso*i));
+			vertices.push(0);
+			vertices.push(r*Math.sin(paso*i));
+			
+			vertices.push(r*Math.cos(paso*(i+1)));
+			vertices.push(0);
+			vertices.push(r*Math.sin(paso*(i+1)));
+			
+			coords.push(0);
+			coords.push(i*2 + 1);
+			coords.push(i*2 + 2);
+			
+			textCords.push(0.5 + 0.5*Math.cos(paso*i));
+			textCords.push(0.5 + 0.5*Math.sin(paso*i));
+			
+			textCords.push(0.5 + 0.5*Math.cos(paso*(i+1)));
+			textCords.push(0.5 + 0.5*Math.sin(paso*(i+1)));
+			
+		}
+		
+		var ret = {vertices : vertices, coords : coords, textCords : textCords};
+		return ret;
+		
 	}
