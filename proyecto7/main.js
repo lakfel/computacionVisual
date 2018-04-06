@@ -263,9 +263,9 @@
 
         mat4.translate(mvMatrix, [0.0, 0.0, -5.0]);
 
-        //mat4.rotate(mvMatrix, degToRad(xRot), [1, 0, 0]);
+        mat4.rotate(mvMatrix, degToRad(xRot), [1, 0, 0]);
         mat4.rotate(mvMatrix, degToRad(yRot), [0, 1, 0]);
-        //mat4.rotate(mvMatrix, degToRad(zRot), [0, 0, 1]);
+        mat4.rotate(mvMatrix, degToRad(zRot), [0, 0, 1]);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
