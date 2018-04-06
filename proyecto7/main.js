@@ -185,103 +185,21 @@
 		var tapa = crearCirculo(36,0.7);
 		var bola = crearEsfera(36, 0.7);
 		
-        var vertices = [
-            // Front face
-            -1.0, -1.0,  1.0,
-             1.0, -1.0,  1.0,
-             1.0,  1.0,  1.0,
-            -1.0,  1.0,  1.0,
-
-            // Back face
-            -1.0, -1.0, -1.0,
-            -1.0,  1.0, -1.0,
-             1.0,  1.0, -1.0,
-             1.0, -1.0, -1.0,
-
-            // Top face
-            -1.0,  1.0, -1.0,
-            -1.0,  1.0,  1.0,
-             1.0,  1.0,  1.0,
-             1.0,  1.0, -1.0,
-
-            // Bottom face
-            -1.0, -1.0, -1.0,
-             1.0, -1.0, -1.0,
-             1.0, -1.0,  1.0,
-            -1.0, -1.0,  1.0,
-
-            // Right face
-             1.0, -1.0, -1.0,
-             1.0,  1.0, -1.0,
-             1.0,  1.0,  1.0,
-             1.0, -1.0,  1.0,
-
-            // Left face
-            -1.0, -1.0, -1.0,
-            -1.0, -1.0,  1.0,
-            -1.0,  1.0,  1.0,
-            -1.0,  1.0, -1.0,
-        ];
-		vertices = lata.vertices;
+        var vertices =  lata.vertices;
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
         canVertexPositionBuffer.itemSize = 3;
         canVertexPositionBuffer.numItems = vertices.length/3;
 
         canVertexTextureCoordBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, canVertexTextureCoordBuffer);
-        var textureCoords = [
-          // Front face
-          0.0, 0.0,
-          1.0, 0.0,
-          1.0, 1.0,
-          0.0, 1.0,
-
-          // Back face
-          1.0, 0.0,
-          1.0, 1.0,
-          0.0, 1.0,
-          0.0, 0.0,
-
-          // Top face
-          0.0, 1.0,
-          0.0, 0.0,
-          1.0, 0.0,
-          1.0, 1.0,
-
-          // Bottom face
-          1.0, 1.0,
-          0.0, 1.0,
-          0.0, 0.0,
-          1.0, 0.0,
-
-          // Right face
-          1.0, 0.0,
-          1.0, 1.0,
-          0.0, 1.0,
-          0.0, 0.0,
-
-          // Left face
-          0.0, 0.0,
-          1.0, 0.0,
-          1.0, 1.0,
-          0.0, 1.0,
-        ];
-		textureCoords = lata.textCords;
+        var textureCoords= lata.textCords;
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
         canVertexTextureCoordBuffer.itemSize = 2;
         canVertexTextureCoordBuffer.numItems = textureCoords.length/2	;
 
         canVertexIndexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, canVertexIndexBuffer);
-        var cubeVertexIndices = [
-            0, 1, 2,      0, 2, 3,    // Front face
-            4, 5, 6,      4, 6, 7,    // Back face
-            8, 9, 10,     8, 10, 11,  // Top face
-            12, 13, 14,   12, 14, 15, // Bottom face
-            16, 17, 18,   16, 18, 19, // Right face
-            20, 21, 22,   20, 22, 23  // Left face
-        ];
-		cubeVertexIndices = lata.coords;
+        var cubeVertexIndices =lata.coords;
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
         canVertexIndexBuffer.itemSize = 1;
         canVertexIndexBuffer.numItems = cubeVertexIndices.length;
@@ -345,7 +263,7 @@
 
         mat4.identity(mvMatrix);
 
-        mat4.translate(mvMatrix, [0.0, 0.0, -5.0]);
+        mat4.translate(mvMatrix, [3.0, 0.0, -10.0]);
 
         mat4.rotate(mvMatrix, degToRad(xRot), [1, 0, 0]);
         mat4.rotate(mvMatrix, degToRad(yRot), [0, 1, 0]);
@@ -363,12 +281,12 @@
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, canVertexIndexBuffer);
         setMatrixUniforms();
-        //gl.drawElements(gl.TRIANGLES, canVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, canVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		
 		
 		//TAPA 
 		
-		//mat4.translate(mvMatrix, [0.0, 1.25, 0.0]);
+		mat4.translate(mvMatrix, [0.0, 1.25, 0.0]);
 		
 		gl.bindBuffer(gl.ARRAY_BUFFER, canTopVertexPositionBuffer);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, canTopVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -382,10 +300,10 @@
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, canTopVertexIndexBuffer);
         setMatrixUniforms();
-        //gl.drawElements(gl.TRIANGLES, canTopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, canTopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		
 		
-		//mat4.translate(mvMatrix, [0.0, -2.5, 0.0]);
+		mat4.translate(mvMatrix, [0.0, -2.5, 0.0]);
 	
 		
 		
@@ -394,8 +312,21 @@
         gl.uniform1i(shaderProgram.samplerUniform, 0);
 
         setMatrixUniforms();
-        //gl.drawElements(gl.TRIANGLES, canTopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, canTopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		
+		mat4.translate(mvMatrix, [0.0, 1.25, 0.0]);
+		
+        mat4.rotate(mvMatrix, -degToRad(zRot), [0, 0, 1]);
+        mat4.rotate(mvMatrix, -degToRad(yRot), [0, 1, 0]);
+		mat4.rotate(mvMatrix, -degToRad(xRot), [1, 0, 0]);
+        
+		
+		mat4.translate(mvMatrix, [-6.0, 0.0, 0.0]);
+		
+		
+        mat4.rotate(mvMatrix, degToRad(xRot), [1, 0, 0]);
+        mat4.rotate(mvMatrix, degToRad(yRot), [0, 1, 0]);
+        mat4.rotate(mvMatrix, degToRad(zRot), [0, 0, 1]);
 		
 		gl.bindBuffer(gl.ARRAY_BUFFER, ballVertexPositionBuffer);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, ballVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -559,20 +490,20 @@
 			{	
 		
 				vertices.push(r*Math.sin(i*paso) * Math.cos(j*paso));
-				vertices.push(r*Math.sin(i*paso) * Math.sin(j*paso));
 				vertices.push(r*Math.cos(i*paso));
+				vertices.push(r*Math.sin(i*paso) * Math.sin(j*paso));
 				
 				vertices.push(r*Math.sin(i*paso) * Math.cos((j+1)*paso));
-				vertices.push(r*Math.sin(i*paso) * Math.sin((j+1)*paso));
 				vertices.push(r*Math.cos(i*paso));
+				vertices.push(r*Math.sin(i*paso) * Math.sin((j+1)*paso));
 				
 				vertices.push(r*Math.sin((i+1)*paso) * Math.cos((j+1)*paso));
-				vertices.push(r*Math.sin((i+1)*paso) * Math.sin((j+1)*paso));
 				vertices.push(r*Math.cos((i+1)*paso));
+				vertices.push(r*Math.sin((i+1)*paso) * Math.sin((j+1)*paso));
 				
 				vertices.push(r*Math.sin((i+1)*paso) * Math.cos((j)*paso));
-				vertices.push(r*Math.sin((i+1)*paso) * Math.sin((j)*paso));
 				vertices.push(r*Math.cos((i+1)*paso));
+				vertices.push(r*Math.sin((i+1)*paso) * Math.sin((j)*paso));
 				
 				coords.push(i*pisos*4 + j*4);
 				coords.push(i*pisos*4 + j*4 + 3);
@@ -582,18 +513,22 @@
 				coords.push(i*pisos*4 + j*4 + 3);
 				coords.push(i*pisos*4 + j*4 + 2);
 				
-				/*textCords.push(i*paso /Math.PI) ;
+
 				textCords.push(j*paso /(Math.PI*2)) ;
-				
 				textCords.push(i*paso /Math.PI) ;
-				textCords.push((j+1)*paso /(Math.PI*2)) ;
 				
-				textCords.push((i+1)*paso /Math.PI) ;
 				textCords.push((j+1)*paso /(Math.PI*2)) ;
+				textCords.push(i*paso /Math.PI) ;
 				
+				
+				textCords.push((j+1)*paso /(Math.PI*2)) ;
 				textCords.push((i+1)*paso /Math.PI) ;
+				
+				
 				textCords.push(j*paso /(Math.PI*2)) ;
-				*/
+				textCords.push((i+1)*paso /Math.PI) ;
+				
+				/*
 				textCords.push(0.5 + 0.5 * r*Math.sin(i*paso) * Math.cos(j*paso) /(1 - r*Math.cos(i*paso))) ;
 				textCords.push(0.5 + 0.5 *r*Math.sin(i*paso) * Math.sin(j*paso) /(1 - r*Math.cos(i*paso))) ;
 				
@@ -605,6 +540,7 @@
 				
 				textCords.push(0.5 + 0.5 * r*Math.sin((i+1)*paso) * Math.cos(j*paso) /(1 - r*Math.cos((i+1)*paso))) ;
 				textCords.push(0.5 + 0.5 *r*Math.sin((i+1)*paso) * Math.sin(j*paso) /(1 - r*Math.cos((i+1)*paso))) ;
+				*/
 				/*
 				textCords.push(1-2*i/pisos) ;
 				textCords.push(1- j /(pisos)) ;
