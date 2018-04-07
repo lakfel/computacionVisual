@@ -69,6 +69,9 @@
 				resp = [ 1,(-vector[0] -vector[2])/vector[1],1];
 			else if(vector[2] != 0)
 				resp = [ 1,1(-vector[0] -vector[2])/vector[2]];
+
+			if(resp[0] <0)
+				resp = [-resp[0], -resp[1], -resp[2]];
 		}
 		else
 		{

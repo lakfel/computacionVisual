@@ -1,5 +1,5 @@
     var gl;
-
+	var sep = 9;
     function initGL(canvas) {
         try {
             gl = canvas.getContext("experimental-webgl");
@@ -51,7 +51,9 @@
 
     var shaderProgram;
 
-    function initShaders() {
+
+    function initShaders() 
+		{
         var fragmentShader = getShader(gl, "shader-fs");
         var vertexShader = getShader(gl, "shader-vs");
 
@@ -107,7 +109,7 @@
             handleLoadedTexture(canTexture)
         }
 
-        canTexture.image.src = "proyecto7/cocacolaCan2.jpg";
+        canTexture.image.src = "proyecto7/cocacolaCan.jpg";
 		
 		topCanTexture = gl.createTexture();
         topCanTexture.image = new Image();
@@ -192,23 +194,48 @@
 	var aumento;
 	var signo;
 	var conteo;
+
+	
+	var puntosRecorridoBola;
+	var posicionesLatas = [];
+	var cantidadLatas;
+	var latasJugando= [0,0];
+	var conteoBola;
     function initBuffers() 
 	{
-		
+		conteoBola = 0;
 		var lata = null;
 		var tapa = null;
 		var bola = null;
 		var fondo = null;
+	
+		cantidadLatas = 6;
+		for(var i = 0; i < cantidadLatas ; i++)
+		{
+			posicionesLatas.push(sep*Math.cos(2*i*Math.PI/cantidadLatas));
+			posicionesLatas.push(0);
+			posicionesLatas.push(sep*Math.sin(2*i*Math.PI/cantidadLatas));
+		}
+		var primero = Math.floor(Math.random() * (cantidadLatas));
+		var segundo;
+		while((segundo = Math.floor(Math.random() * (cantidadLatas))) == primero);
+		latasJugando = [primero, segundo];
+		puntosRecorridoBola = 
+			calcularBufferCurva(100, [
+				posicionesLatas[latasJugando[primero]*3], posicionesLatas[latasJugando[primero]*3 +1], posicionesLatas[latasJugando[primero]*3] ,
+				0,5,0,
+				posicionesLatas[latasJugando[segundo]*3], posicionesLatas[latasJugando[segundo]*3 +1], posicionesLatas[latasJugando[segundo]*3] ,					 ]);
 
-		bola = crearEsfera(36, 0.7);
+
+		bola = crearEsfera(10, 0.4);
 		
-		controlTopLata = calcularBufferCurva(30, [-2,0.0,2,0,6,0,2,0.0,-2]);
+		controlTopLata = calcularBufferCurva(30, [-2,0.0,2,0,4,0,2,0.0,-2]);
 		conteo = 0;
 		aumento = 1;
 
-		ejeLata = calcularBufferCurva(30, [0.0,-1.25,0.0,0,0,0, -1.5,0,0.4]);
+		ejeLata = calcularBufferCurva(5, [0.0,-1.25,0.0,0,0,0, -1.5,0,0.4]);
 
-		lataCompleta = new cilindro(36,2.5,0.7,4, ejeLata.ver);
+		lataCompleta = new cilindro(10,2.5,0.7,4, ejeLata.ver);
 		lataCompleta.crearCilindro();
 		lata = lataCompleta.cilindro;
 		tapa = lataCompleta.tapa;
@@ -407,18 +434,73 @@
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
-
+		mat4.translate(pMatrix, [0.0, -3, -35.0]);
+		mat4.rotate(pMatrix, degToRad(30), [1, 0, 0]);
+		mat4.rotate(pMatrix, degToRad(yRot/5), [0, 1, 0]);
+		mat4.translate(pMatrix, [0.0, 4, 0.0]);
+		//mat4.translate(pMatrix, [0.0, 0.0, -10.0]);
+		
         mat4.identity(mvMatrix);
 
-        mat4.translate(mvMatrix, [2.0, 0.0, -10.0]);
-
-        //mat4.rotate(mvMatrix, degToRad(xRot), [1, 0, 0]);
-        //mat4.rotate(mvMatrix, degToRad(yRot), [0, 1, 0]);
-        //mat4.rotate(mvMatrix, degToRad(zRot), [0, 0, 1]);
-	
-		updateCan();
 		
-        gl.bindBuffer(gl.ARRAY_BUFFER, canVertexPositionBuffer);
+		for(var i = 0; i < cantidadLatas; i++)
+		{
+			mvPushMatrix();
+			mat4.translate(mvMatrix, [posicionesLatas[i*3],posicionesLatas[i*3+1],posicionesLatas[i*3+2]]);
+			drawCan();
+			mvPopMatrix();
+		}
+       
+		
+		conteoBola++;
+		if(conteoBola >= puntosRecorridoBola.ver.length/3)
+		{
+			latasJugando[0] = latasJugando[1];
+			while((latasJugando[1] = Math.floor(Math.random() * (cantidadLatas))) == latasJugando[0]);
+			
+			var vectorDirector = [ posicionesLatas[latasJugando[1]*3] - posicionesLatas[latasJugando[0]*3],
+								   0,
+									posicionesLatas[latasJugando[1]*3 + 2] - posicionesLatas[latasJugando[1]*3+2]];
+			var norma = Math.sqrt(Math.pow(vectorDirector[0],2) + Math.pow(vectorDirector[1],2) +Math.pow(vectorDirector[2],2));
+			vectorDirector = [vectorDirector[0]/norma,vectorDirector[1]/norma,vectorDirector[2]/norma];
+
+			var puntoMedio = [ posicionesLatas[latasJugando[0]*3] + norma*vectorDirector[0]/2,
+								norma*0.7,
+								posicionesLatas[latasJugando[0]*3+2] + norma*vectorDirector[2]/2];
+			puntosRecorridoBola = 
+			calcularBufferCurva(Math.floor(norma*8), [
+				posicionesLatas[latasJugando[0]*3], posicionesLatas[latasJugando[0]*3 +1] + 1.5, posicionesLatas[latasJugando[0]*3+2] ,
+				puntoMedio[0],puntoMedio[1],puntoMedio[2],
+				posicionesLatas[latasJugando[1]*3], posicionesLatas[latasJugando[1]*3 +1] + 1.5, posicionesLatas[latasJugando[1]*3+2] ]);
+			conteoBola = 0;
+		}
+
+		mat4.translate(mvMatrix, [puntosRecorridoBola.ver[conteoBola*3], puntosRecorridoBola.ver[conteoBola*3+1], puntosRecorridoBola.ver[conteoBola*3 +2]]);
+		
+		//mat4.rotate(mvMatrix, degToRad(xRot/20), [1, 0, 0]);
+        //mat4.rotate(mvMatrix, degToRad(yRot/20), [0, 1, 0]);
+        //mat4.rotate(mvMatrix, degToRad(zRot/20), [0, 0, 1]);
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, ballVertexPositionBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, ballVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, ballVertexTextureCoordBuffer);
+        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, ballVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, ballTexture);
+        gl.uniform1i(shaderProgram.samplerUniform, 0);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ballVertexIndexBuffer);
+        setMatrixUniforms();
+        gl.drawElements(gl.TRIANGLES, ballVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+		
+		
+    }
+
+	function drawCan()
+	{
+		gl.bindBuffer(gl.ARRAY_BUFFER, canVertexPositionBuffer);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, canVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, canVertexTextureCoordBuffer);
@@ -463,42 +545,9 @@
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, canBottomVertexIndexBuffer);
         setMatrixUniforms();
         gl.drawElements(gl.TRIANGLES, canBottomVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+	}
 	
-		
-		
-       
-		
-		
-       // mat4.rotate(mvMatrix, -degToRad(zRot), [0, 0, 1]);
-       // mat4.rotate(mvMatrix, -degToRad(yRot), [0, 1, 0]);
-		//mat4.rotate(mvMatrix, -degToRad(xRot), [1, 0, 0]);
-        
-		
-		mat4.translate(mvMatrix, [-6.0, 0.0, 0.0]);
-		
-		
-        mat4.rotate(mvMatrix, degToRad(xRot), [1, 0, 0]);
-        mat4.rotate(mvMatrix, degToRad(yRot), [0, 1, 0]);
-        mat4.rotate(mvMatrix, degToRad(zRot), [0, 0, 1]);
-		
-		gl.bindBuffer(gl.ARRAY_BUFFER, ballVertexPositionBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, ballVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, ballVertexTextureCoordBuffer);
-        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, ballVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, ballTexture);
-        gl.uniform1i(shaderProgram.samplerUniform, 0);
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ballVertexIndexBuffer);
-        setMatrixUniforms();
-        gl.drawElements(gl.TRIANGLES, ballVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-		
-		
-    }
-
-
+	
     var lastTime = 0;
 
     function animate() {
