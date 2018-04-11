@@ -101,17 +101,21 @@ http://www.templatemo.com/tm-501-neaty
 									}
 								</script>
 								
-								
+								<p>
+									En esta ocasión realizamos una escena con latas de Coca-cola y balones de futbol (posiblemente en el futuro le incluya Hersheys kisses). Este proyecto es WebGl <strong> PURO </strong>. Nada de librerías, maa allá de un par de archivos que cree para hacer la tarea más facil. Espero les agrade y lo disfruten. Tiene dos elementos pequeños de interacción
+								</p>
+								<ul>
+									<li><strong>Número de latas: </strong> Pueden ver dos botones. Uno de más (+) y uno de menos (-). Esto controla el número de latas en la escena. Tiene un máximo de 18.</li>
+									<li><strong>Balon: </strong> Debajo de la escena hay unas opciones que controlan el tipo de balon con el que están jugando nuestras simpáticas latas de cocacola.</li>
+								</ul>
 								<table>
 									<tr>
 										<td >
-											<input height="200" class= "tm-button" type="button" id="btnMas" value="+"></input>
-											<input height="40%" class= "tm-button"  type="button" id="btnMenos" value="-"></input>
-											<input id = "rad1" type="radio" name="balon" value="clasico"> Clasico<br>
-											<input id = "rad2" type="radio" name="balon" value="neo"> Neo1<br>
-											<input id = "rad3" type="radio" name="balon" value="clasico"> Neo2<br>
-											<input id = "rad4" type="radio" name="balon" value="neo"> Neo3<br>
-											<input id = "rad5" type="radio" name="balon" value="neo"> Neo4<br>
+											<input style="width: 80px; height:200px; font-size:18; padding:10px;" class= "tm-button" type="button" id="btnMas" value="+"></input>
+											</br>
+											<p> </p>
+											<input style="width: 80px; height:200px; font-size:18; padding:10px;" class= "tm-button"  type="button" id="btnMenos" value="-"></input>
+											</br>
 										<td>
 										<td>
 											<canvas id = "mycanvas" width="800" height="500"></canvas>
@@ -119,15 +123,261 @@ http://www.templatemo.com/tm-501-neaty
 									</tr>
 									
 								</table>
+								<table>
+									<tr>
+										<td style="width: 120px;">
+											<input style="width: 120px;" id = "rad1" type="radio" name="balon" value="clasico"> Clasico<br>
+										</td>
+										<td style="width: 120px;">
+											<input style="width: 120px;" id = "rad2" type="radio" name="balon" value="neo"> Neo1<br>
+										</td>
+										<td style="width: 120px;">
+											<input style="width: 120px;" id = "rad3" type="radio" name="balon" value="clasico"> Neo2<br>
+										</td>
+										<td style="width: 120px;">
+											<input style="width: 120px;" id = "rad4" type="radio" name="balon" value="neo"> Neo3<br>
+										</td>
+										<td style="width: 120px;">
+											<input style="width: 120px;" id = "rad5" type="radio" name="balon" value="neo"> Neo4<br>
+										</td>
+									</tr>
+								</table>
+								<header>
+                                    <h2 class="tm-blue-text tm-welcome-title tm-margin-b-45">Como funciona!?</h2>
+                                </header>
+								<p>
+									Como les dije al principio, el desarrollo es copletamente propio. Hay muchos aspectos a tener en cuenta. Intentaré cubrir los más importantes.
+								</p>
+								<header>
+                                    <h3 class="tm-blue-text ">Objetos</h3>
+                                </header>
+								<p>
+									Para este proyecto se creo una librería que creaba objetos. En específico 4 tipos de objetos. Esferas, aros, circulos y cilindros articulados. A diferencia del último todos son conocidos. Un cilindro articulado, como lo he llamado, es un cilindro que está conformado por varios aros. El clinidro cuenta con un eje que es una consecución de líneas pegadas. Cada linea tiene atada un aro que se dibuja dependiendo de la inclinación y posición de la línea. Es así como podemos simular el movimiento de la lata.		
+								</p>
+								<header>
+                                    <h4 class="tm-blue-text ">Esfera</h4>
+                                </header>
+								<p>
+									Para la creación de la esfera pedimos dos parámetros. Uno, que he llamado pisos, me define la resolución. Me dice en cuantas partes divido la esfera para crearla. A mayor cantidad de pisos mejos la definición. Segundo el radio. 
+								</p>
+								<p>
+									La esfera que se retorna tiene 3 arreglos. Veertices que me dice los vertices de la esfera. coords que me dice la organización de los vertices en los grupos de 3 para crear los triangulos. textCords que genera la proyección de la esfera para poder ponerle una textura. Para eso se realizó una proyección de una esfera sobre un plano.
+								</p>
+								<pre align = "left">
+function crearEsfera (pisos, r)
+	{
+		var vertices = [];
+		var paso = 2*Math.PI/pisos;
+		var paso2 = 1 / pisos;
+		var coords = [];
+		var textCords = [];
+		
+		for(var i = 0; i   <  pisos/2  ; i++)
+		{
+		for (var j = 0 ; j  < pisos ; j++)
+			{	
+		
+				vertices.push(r*Math.sin(i*paso) * Math.cos(j*paso));
+				vertices.push(r*Math.cos(i*paso));
+				vertices.push(r*Math.sin(i*paso) * Math.sin(j*paso));
+				
+				vertices.push(r*Math.sin(i*paso) * Math.cos((j+1)*paso));
+				vertices.push(r*Math.cos(i*paso));
+				vertices.push(r*Math.sin(i*paso) * Math.sin((j+1)*paso));
+				
+				vertices.push(r*Math.sin((i+1)*paso) * Math.cos((j+1)*paso));
+				vertices.push(r*Math.cos((i+1)*paso));
+				vertices.push(r*Math.sin((i+1)*paso) * Math.sin((j+1)*paso));
+				
+				vertices.push(r*Math.sin((i+1)*paso) * Math.cos((j)*paso));
+				vertices.push(r*Math.cos((i+1)*paso));
+				vertices.push(r*Math.sin((i+1)*paso) * Math.sin((j)*paso));
+				
+				coords.push(i*pisos*4 + j*4);
+				coords.push(i*pisos*4 + j*4 + 3);
+				coords.push(i*pisos*4 + j*4 + 1);
+				
+				coords.push(i*pisos*4 + j*4 + 1);
+				coords.push(i*pisos*4 + j*4 + 3);
+				coords.push(i*pisos*4 + j*4 + 2);
+				
+
+				textCords.push(j*paso /(Math.PI*2)) ;
+				textCords.push(i*paso /Math.PI) ;
+				
+				textCords.push((j+1)*paso /(Math.PI*2)) ;
+				textCords.push(i*paso /Math.PI) ;
+				
+				
+				textCords.push((j+1)*paso /(Math.PI*2)) ;
+				textCords.push((i+1)*paso /Math.PI) ;
+				
+				
+				textCords.push(j*paso /(Math.PI*2)) ;
+				textCords.push((i+1)*paso /Math.PI) ;
+					}
+		}
+		var ret = {vertices : vertices, coords : coords, textCords : textCords};
+		return ret;
+	};
+								</pre>
+								<p>
+									Se está trabajando para volverlo más eficiente para poner primitiva en webGl TRIANGLE_STRIP en lugar de TRIANGLES
+								</p>
 								
-								<p>Cantidad de puntos</p>
-								<p id = "lblPuntos"></p>
-								<input width="800" type="range" min="2" max="100" value="50" class="slider" id="myRange">
+								<header>
+                                    <h4 class="tm-blue-text ">Circulo</h4>
+                                </header>
+								<p>
+									Este lo usamos para las tapas de la lata. Su desarrollo es muy parecido a la esfera. Se le agrega la ppsibilida de tener un punto de partida y un vector normal. Esto para manejar la inclinación con una función creada por mi que calcula las nuevas cordenadas. Ya más adelante explicaremos esta función.
+								</p>
 								
+								<pre align = "left">
+function crearCirculo(cantidadCuadros, r, posInicial = null, vectorNormal = null)
+	{
+		var vertices = [];
+		var coords = [];
+		var textCords = [];
+		var paso = 2*Math.PI / cantidadCuadros;
+		var pasoText = 1 / cantidadCuadros;
+		var offset = [0,0,0];
+		if(posInicial != null && vectorNormal == null)
+		{
+			offset= posInicial;
+		}
+
+		vertices = offset;
+		
+		textCords.push(0.5);
+		textCords.push(0.5);
+		
+		for(var i =0; i < cantidadCuadros; i++)
+		{
+			
+			
+			vertices.push(r*Math.cos(paso*i) + offset[0]);
+			vertices.push(offset[1]);
+			vertices.push(r*Math.sin(paso*i) + offset[2]);
+			
+			vertices.push(r*Math.cos(paso*(i+1)) + offset[0]);
+			vertices.push(offset[1]);
+			vertices.push(r*Math.sin(paso*(i+1)) + offset[2]);
+			
+			coords.push(0);
+			coords.push(i*2 + 1);
+			coords.push(i*2 + 2);
+			
+			textCords.push(0.5 + 0.5*Math.cos(paso*i));
+			textCords.push(0.5 + 0.5*Math.sin(paso*i));
+			
+			textCords.push(0.5 + 0.5*Math.cos(paso*(i+1)));
+			textCords.push(0.5 + 0.5*Math.sin(paso*(i+1)));
+			
+		}
+		if(posInicial != null && vectorNormal != null)
+		{	
+			var res = rotarTransladar(posInicial,vectorNormal, vertices);
+			vertices = res.vertices;
+		}
+		
+
+		var ret = {vertices : vertices, coords : coords, textCords : textCords};
+		return ret;
+		
+	}
+							</pre>
+							<header>
+                                    <h4 class="tm-blue-text ">Cilindro articulado</h4>
+                             </header>
+							 
+							 <p> El aro solo lo usamos para el fondo. Este lo pueden consultar en el repositorio. El clinidro es un poco más complicado. Recibe la resolución, al igual que la esfera, el radio y el eje. Este eje es una consecución de puntos que dibuja una traza de lineas unidas y así generan el eje. Entre cada par de puntos del arreglo de ejes asumo que hay una linea, y esta línea será el centro de un aro. Calculo el aro y luego, con base a la posición de los puntos y la dirección del vector que dibujan los dos puntos, desplazo el aro y lo roto. Al final creamos los puntos para que se dibuje lo que hay entre aro y aro.
                             </section>
                            
-                       
-               
+							<pre align = "left">
+function crearCilindroArticuladoConEje (cantidadCuadros, r, eje)
+	{
+		var puntos = eje.length/3
+		var vertices = [];
+		var vertices2 = [];
+		var verticesR = [];
+		var coords = [];
+		var textCords = [];
+		var paso = 2*Math.PI / cantidadCuadros;
+		var pasoText = 1 / cantidadCuadros;
+		var divJC = 1/ (puntos-1);
+		var puntosEje = eje;
+		var vector = [0,0,0];
+		
+		var temp1 = null;
+		
+		var cambioBase = []
+		var norma = 0;
+		for(var j =0; j < puntos - 1; j++)
+		{
+			vector = [eje[3*(j+1)] - eje[3*j],eje[3*(j+1) +1] - eje[3*j +1] ,eje[3*(j+1) +2] - eje[3*j +2]];
+			norma = Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2) +Math.pow(vector[2],2));
+			vector = [vector[0]/norma,vector[1]/norma,vector[2]/norma];
+	
+			for(var i =0; i < cantidadCuadros; i++)
+			{	
+				
+				vertices2= [];
+				vertices2.push(r*Math.cos(paso*i));
+				vertices2.push(0);
+				vertices2.push(r*Math.sin(paso*i));
+		
+				vertices2.push(r*Math.cos(paso*(i+1)));
+				vertices2.push(0);
+				vertices2.push(r*Math.sin(paso*(i+1)));
+				
+				temp1 = rotarTransladar([eje[3*j],eje[3*j+1], eje[3*j+2]],vector, vertices2);
+				vertices.push.apply(vertices,temp1.vertices);
+				
+				temp1 = rotarTransladar([eje[3*(j+1)],eje[3*(j+1)+1], eje[3*(j+1)+2]],vector, vertices2, temp1.cambioBase);
+				vertices.push.apply(vertices,temp1.vertices);
+				
+				coords.push(j*4*cantidadCuadros + i*4);
+				coords.push(j*4*cantidadCuadros + i*4 + 2);
+				coords.push(j*4*cantidadCuadros + i*4 + 1);
+				
+				coords.push(j*4*cantidadCuadros + i*4 + 1);
+				coords.push(j*4*cantidadCuadros + i*4 + 2);
+				coords.push(j*4*cantidadCuadros + i*4 + 3);
+				
+				textCords.push(i*pasoText);
+				textCords.push(1 - j*divJC);
+				
+				textCords.push((i+1)*pasoText);
+				textCords.push(1 - j*divJC);
+				
+				textCords.push((i)*pasoText);
+				textCords.push(1 - (j+1)*divJC);
+
+				textCords.push((i+1)*pasoText);
+				textCords.push(1 - (j+1)*divJC);
+				
+			}
+		}
+		for(var j =0; j < puntos - 2; j++)
+		{
+			for(var i =0; i < cantidadCuadros; i++)
+			{
+				coords.push((j)*4*cantidadCuadros + i*4 +2);
+				coords.push((j+1)*4*cantidadCuadros + i*4 );
+				coords.push((j)*4*cantidadCuadros + i*4 + 3);
+				
+				coords.push((j)*4*cantidadCuadros + i*4 + 3);
+				coords.push((j+1)*4*cantidadCuadros + i*4 );
+				coords.push((j+1)*4*cantidadCuadros + i*4 +1);
+				
+			}
+		}
+		
+		var ret = {vertices : vertices, coords : coords, textCords : textCords, puntosEje : puntosEje};
+		return ret;
+	}
+							</pre>
+							<p> Estos son los elementos necesarios para crear los objetos. Luego poner las texturas es algo MUY sencillo. Antes de mostrarlo es necesario decir que las texturas deben seleccionarse con base a la superficie donde se van a poner y al tamaño de los objetos. Por ejemplo en la esfera debe tener una forma específica para que quede bien, y la resolución es neesaria pues si el objeto es muy grande, y la imagen tiene una resolución muy baja, se va a distorcionar.</p>
                         </div>  
                         
                     </div> <!-- Right column: content -->
