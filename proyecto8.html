@@ -104,12 +104,46 @@ http://www.templatemo.com/tm-501-neaty
 									varying vec2 vTextureCoord;
 									varying vec3 vLightWeighting;
 
-									void main(void) {
+									void main(void) 
+									{
+										
+											
 										vec4 mvPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
 										gl_Position = uPMatrix * mvPosition;
 										vTextureCoord = aTextureCoord;
 										vec3 lightDirection = normalize(uPointLightingLocation - mvPosition.xyz);
 										vec3 transformedNormal = uNMatrix * aVertexNormal;
+										
+										vec3 L,R;
+										float spotFactor = 1.0;  // multiplier to account for spotlight
+										float attenuationFactor = 1.0; // multiplier to account for light attenuation with distance
+										if(uPointLightingLocation.w == 0.0)
+										{
+											L = normalize( uPointLightingLocation.xyz );
+										}
+										else
+										{
+											 L = normalize( uPointLightingLocation.position.xyz/uPointLightingLocation.position.w - v_eyeCoords );
+											var spotCosineCutoff = 1.0;
+											var spotDireccition = [0,-1,0];
+											if (spotCosineCutoff > 0.0) { // the light is a spotlight
+												vec3 D = -normalize(spotDirection);
+												float spotCosine = dot(D,L);
+												if (spotCosine >= light.spotCosineCutoff) { 
+													spotFactor = pow(spotCosine,light.spotExponent);
+												}
+												else { // The point is outside the cone of light from the spotlight.
+													spotFactor = 0.0; // The light will add no color to the point.
+												}
+											}
+											var attenuation = 0.3;
+											if (attenuation > 0.0) {
+												float dist = distance(eyeCoords,light.position.xyz/light.position.w);
+												attenuationFactor = 1.0 / (1.0 + dist*light.attenuation);
+											}
+					
+										}
+										
 										float directionalLightWeighting = max(dot(transformedNormal, lightDirection), 0.0);
 										vLightWeighting = uAmbientColor + uPointLightingColor * directionalLightWeighting;
 									}

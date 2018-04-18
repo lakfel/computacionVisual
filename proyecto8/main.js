@@ -680,9 +680,9 @@
         mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 400.0, pMatrix);
 		
 		//Esta parte se esta adicionando para la luz
-		gl.uniform3f(shaderProgram.ambientColorUniform, 0.2,0.2 ,0.2); // COLOR AMBIENTE
+		gl.uniform3f(shaderProgram.ambientColorUniform, 0.5,0.5 ,0.5); // COLOR AMBIENTE
 		gl.uniform3f(shaderProgram.pointLightingLocationUniform,0, 20, 0); // POSICION COLOR
-        gl.uniform3f(shaderProgram.pointLightingColorUniform, 0.4,0.4,0.0);
+        gl.uniform3f(shaderProgram.pointLightingColorUniform, 0.9,0.9,0.3);
 		
 		
 		//mat4.translate(pMatrix, [0.0, conteoDeg - 15	, -90.0]);
