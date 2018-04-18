@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Proyecto 7</title>
+<!--
+Neaty HTML Template
+http://www.templatemo.com/tm-501-neaty
+-->
+    <!-- load stylesheets -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400">  <!-- Google web font "Open Sans" -->
+	<script src = "js/glMatrix-0.9.5.min.js"></script>
+	<script src = "js/webgl-utils.js"></script>
+	<script src = "js/objetos.js"></script>
+	<script src = "js/utilidades.js"></script>
+	<script src = "proyecto8/main.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">                                      <!-- Bootstrap style -->
+    <link rel="stylesheet" href="css/magnific-popup.css">                                <!-- Magnific pop up style, http://dimsemenov.com/plugins/magnific-popup/ -->
+    <link rel="stylesheet" href="css/templatemo-style.css">                                   <!-- Templatemo style -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+          <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+          <![endif]-->
+</head>
+    <body onload = 'webGLStart()'>        
+        <div class="container">
+            <div class="row">
+                <div class="tm-left-right-container">
+                    <!-- Left column: logo and menu -->
+                    <div class="tm-blue-bg tm-left-column">                        
+                        <div class="tm-logo-div text-xs-center">
+							</br>
+                             <a href = "index.html"><img  id = "FotoPrincipal" src="img/foto3.jpg" alt="Johann Felipe González Ávila"  data-rotate="90"></a>
+							</br>
+							</br>
+                            <h1 class="tm-site-name">Johann Felipe González Ávila</h1>
+							</br>
+							<h4>Computación Visual Interactiva.</h4>
+                        </div>
+                        <nav class="tm-main-nav">
+                            <ul class="tm-main-nav-ul">
+                                <li class="tm-nav-item">
+                                    <a href="index.html" class="tm-nav-item-link">¿Qué es esto?</a>
+                                </li>
+                                <li class="tm-nav-item">
+                                    <a href="index.html" class="tm-nav-item-link">Proyectos</a>
+                                </li>
+                                
+                            </ul>
+                        </nav>                                         
+                    </div> <!-- Left column: logo and menu -->
+                    
+                    <!-- Right column: content -->
+                    <div class="tm-right-column">
+						<audio src="proyecto7/joga.mp3" controls autoplay loop>	
+							<p>Tu navegador no implementa el elemento audio.</p>
+						</audio>
+                        <!--figure>
+                            <img src="img/neaty-01.jpg" alt="Header image" class="img-fluid">    
+                        </figure-->
+
+                        <div class="tm-content-div">
+                            <!-- Welcome section -->
+                            <section id="Presentacion" class="tm-section">
+                                <header>
+                                    <h2 class="tm-blue-text tm-welcome-title tm-margin-b-45">Texturas</h2>
+                                </header>
+                                <script id="shader-fs" type="x-shader/x-fragment">
+									precision mediump float;
+
+									varying vec2 vTextureCoord;
+									varying vec3 vLightWeighting;
+
+									uniform sampler2D uSampler;
+
+									void main(void) {
+										vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+										gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a);
+									}
+								</script>
+
+								<script id="shader-vs" type="x-shader/x-vertex">
+									attribute vec3 aVertexPosition;
+									attribute vec2 aTextureCoord;
+									attribute vec3 aVertexNormal;	
+
+									uniform mat4 uMVMatrix;
+									uniform mat4 uPMatrix;
+									uniform mat3 uNMatrix;
+
+									uniform vec3 uAmbientColor;
+
+									uniform vec3 uPointLightingLocation;
+									uniform vec3 uPointLightingColor;
+									
+									uniform bool uUseLighting;
+
+									varying vec2 vTextureCoord;
+									varying vec3 vLightWeighting;
+
+									void main(void) {
+										vec4 mvPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
+										gl_Position = uPMatrix * mvPosition;
+										vTextureCoord = aTextureCoord;
+										vec3 lightDirection = normalize(uPointLightingLocation - mvPosition.xyz);
+										vec3 transformedNormal = uNMatrix * aVertexNormal;
+										float directionalLightWeighting = max(dot(transformedNormal, lightDirection), 0.0);
+										vLightWeighting = uAmbientColor + uPointLightingColor * directionalLightWeighting;
+									}
+								</script>
+								
+								<p>
+									En esta ocasión realizamos una escena con latas de Coca-cola y balones de futbol (posiblemente en el futuro le incluya Hersheys kisses). Este proyecto es WebGl <strong> PURO </strong>. Nada de librerías, maa allá de un par de archivos que cree para hacer la tarea más facil. Espero les agrade y lo disfruten. Tiene dos elementos pequeños de interacción
+								</p>
+								<ul>
+									<li><strong>Número de latas: </strong> Pueden ver dos botones. Uno de más (+) y uno de menos (-). Esto controla el número de latas en la escena. Tiene un máximo de 18.</li>
+									<li><strong>Balon: </strong> Debajo de la escena hay unas opciones que controlan el tipo de balon con el que están jugando nuestras simpáticas latas de cocacola.</li>
+								</ul>
+								<table>
+									<tr>
+										<td >
+											<input style="width: 80px; height:200px; font-size:18; padding:10px;" class= "tm-button" type="button" id="btnMas" value="+"></input>
+											</br>
+											<p> </p>
+											<input style="width: 80px; height:200px; font-size:18; padding:10px;" class= "tm-button"  type="button" id="btnMenos" value="-"></input>
+											</br>
+										<td>
+										<td>
+											<canvas id = "mycanvas" width="800" height="500"></canvas>
+										</td>
+									</tr>
+									
+								</table>
+								<table>
+									<tr>
+										<td style="width: 120px;">
+											<input style="width: 120px;" id = "rad1" type="radio" name="balon" value="clasico"> Clasico<br>
+										</td>
+										<td style="width: 120px;">
+											<input style="width: 120px;" id = "rad2" type="radio" name="balon" value="neo"> Neo1<br>
+										</td>
+										<td style="width: 120px;">
+											<input style="width: 120px;" id = "rad3" type="radio" name="balon" value="clasico"> Neo2<br>
+										</td>
+										<td style="width: 120px;">
+											<input style="width: 120px;" id = "rad4" type="radio" name="balon" value="neo"> Neo3<br>
+										</td>
+										<td style="width: 120px;">
+											<input style="width: 120px;" id = "rad5" type="radio" name="balon" value="neo"> Neo4<br>
+										</td>
+									</tr>
+								</table>
+								<header>
+                                    <h2 class="tm-blue-text tm-welcome-title tm-margin-b-45">Como funciona!?</h2>
+                                </header>
+								<p>
+									Como les dije al principio, el desarrollo es copletamente propio. Hay muchos aspectos a tener en cuenta. Intentaré cubrir los más importantes.
+								</p>
+								<header>
+                                    <h3 class="tm-blue-text ">Objetos</h3>
+                                </header>
+								<p>
+									Para este proyecto se creo una librería que creaba objetos. En específico 4 tipos de objetos. Esferas, aros, circulos y cilindros articulados. A diferencia del último todos son conocidos. Un cilindro articulado, como lo he llamado, es un cilindro que está conformado por varios aros. El clinidro cuenta con un eje que es una consecución de líneas pegadas. Cada linea tiene atada un aro que se dibuja dependiendo de la inclinación y posición de la línea. Es así como podemos simular el movimiento de la lata.		
+								</p>
+								<header>
+                                    <h4 class="tm-blue-text ">Esfera</h4>
+                                </header>
+								<p>
+									Para la creación de la esfera pedimos dos parámetros. Uno, que he llamado pisos, me define la resolución. Me dice en cuantas partes divido la esfera para crearla. A mayor cantidad de pisos mejos la definición. Segundo el radio. 
+								</p>
+								<p>
+									La esfera que se retorna tiene 3 arreglos. Veertices que me dice los vertices de la esfera. coords que me dice la organización de los vertices en los grupos de 3 para crear los triangulos. textCords que genera la proyección de la esfera para poder ponerle una textura. Para eso se realizó una proyección de una esfera sobre un plano.
+								</p>
+								<pre align = "left">
+function crearEsfera (pisos, r)
+	{
+		var vertices = [];
+		var paso = 2*Math.PI/pisos;
+		var paso2 = 1 / pisos;
+		var coords = [];
+		var textCords = [];
+		
+		for(var i = 0; i   <  pisos/2  ; i++)
+		{
+		for (var j = 0 ; j  < pisos ; j++)
+			{	
+		
+				vertices.push(r*Math.sin(i*paso) * Math.cos(j*paso));
+				vertices.push(r*Math.cos(i*paso));
+				vertices.push(r*Math.sin(i*paso) * Math.sin(j*paso));
+				
+				vertices.push(r*Math.sin(i*paso) * Math.cos((j+1)*paso));
+				vertices.push(r*Math.cos(i*paso));
+				vertices.push(r*Math.sin(i*paso) * Math.sin((j+1)*paso));
+				
+				vertices.push(r*Math.sin((i+1)*paso) * Math.cos((j+1)*paso));
+				vertices.push(r*Math.cos((i+1)*paso));
+				vertices.push(r*Math.sin((i+1)*paso) * Math.sin((j+1)*paso));
+				
+				vertices.push(r*Math.sin((i+1)*paso) * Math.cos((j)*paso));
+				vertices.push(r*Math.cos((i+1)*paso));
+				vertices.push(r*Math.sin((i+1)*paso) * Math.sin((j)*paso));
+				
+				coords.push(i*pisos*4 + j*4);
+				coords.push(i*pisos*4 + j*4 + 3);
+				coords.push(i*pisos*4 + j*4 + 1);
+				
+				coords.push(i*pisos*4 + j*4 + 1);
+				coords.push(i*pisos*4 + j*4 + 3);
+				coords.push(i*pisos*4 + j*4 + 2);
+				
+
+				textCords.push(j*paso /(Math.PI*2)) ;
+				textCords.push(i*paso /Math.PI) ;
+				
+				textCords.push((j+1)*paso /(Math.PI*2)) ;
+				textCords.push(i*paso /Math.PI) ;
+				
+				
+				textCords.push((j+1)*paso /(Math.PI*2)) ;
+				textCords.push((i+1)*paso /Math.PI) ;
+				
+				
+				textCords.push(j*paso /(Math.PI*2)) ;
+				textCords.push((i+1)*paso /Math.PI) ;
+					}
+		}
+		var ret = {vertices : vertices, coords : coords, textCords : textCords};
+		return ret;
+	};
+								</pre>
+								<p>
+									Se está trabajando para volverlo más eficiente para poner primitiva en webGl TRIANGLE_STRIP en lugar de TRIANGLES
+								</p>
+								
+								<header>
+                                    <h4 class="tm-blue-text ">Circulo</h4>
+                                </header>
+								<p>
+									Este lo usamos para las tapas de la lata. Su desarrollo es muy parecido a la esfera. Se le agrega la ppsibilida de tener un punto de partida y un vector normal. Esto para manejar la inclinación con una función creada por mi que calcula las nuevas cordenadas. Ya más adelante explicaremos esta función.
+								</p>
+								
+								<pre align = "left">
+function crearCirculo(cantidadCuadros, r, posInicial = null, vectorNormal = null)
+	{
+		var vertices = [];
+		var coords = [];
+		var textCords = [];
+		var paso = 2*Math.PI / cantidadCuadros;
+		var pasoText = 1 / cantidadCuadros;
+		var offset = [0,0,0];
+		if(posInicial != null && vectorNormal == null)
+		{
+			offset= posInicial;
+		}
+
+		vertices = offset;
+		
+		textCords.push(0.5);
+		textCords.push(0.5);
+		
+		for(var i =0; i < cantidadCuadros; i++)
+		{
+			
+			
+			vertices.push(r*Math.cos(paso*i) + offset[0]);
+			vertices.push(offset[1]);
+			vertices.push(r*Math.sin(paso*i) + offset[2]);
+			
+			vertices.push(r*Math.cos(paso*(i+1)) + offset[0]);
+			vertices.push(offset[1]);
+			vertices.push(r*Math.sin(paso*(i+1)) + offset[2]);
+			
+			coords.push(0);
+			coords.push(i*2 + 1);
+			coords.push(i*2 + 2);
+			
+			textCords.push(0.5 + 0.5*Math.cos(paso*i));
+			textCords.push(0.5 + 0.5*Math.sin(paso*i));
+			
+			textCords.push(0.5 + 0.5*Math.cos(paso*(i+1)));
+			textCords.push(0.5 + 0.5*Math.sin(paso*(i+1)));
+			
+		}
+		if(posInicial != null && vectorNormal != null)
+		{	
+			var res = rotarTransladar(posInicial,vectorNormal, vertices);
+			vertices = res.vertices;
+		}
+		
+
+		var ret = {vertices : vertices, coords : coords, textCords : textCords};
+		return ret;
+		
+	}
+							</pre>
+							<header>
+                                    <h4 class="tm-blue-text ">Cilindro articulado</h4>
+                             </header>
+							 
+							 <p> El aro solo lo usamos para el fondo. Este lo pueden consultar en el repositorio. El clinidro es un poco más complicado. Recibe la resolución, al igual que la esfera, el radio y el eje. Este eje es una consecución de puntos que dibuja una traza de lineas unidas y así generan el eje. Entre cada par de puntos del arreglo de ejes asumo que hay una linea, y esta línea será el centro de un aro. Calculo el aro y luego, con base a la posición de los puntos y la dirección del vector que dibujan los dos puntos, desplazo el aro y lo roto. Al final creamos los puntos para que se dibuje lo que hay entre aro y aro.
+                            </section>
+                           
+							<pre align = "left">
+function crearCilindroArticuladoConEje (cantidadCuadros, r, eje)
+	{
+		var puntos = eje.length/3
+		var vertices = [];
+		var vertices2 = [];
+		var verticesR = [];
+		var coords = [];
+		var textCords = [];
+		var paso = 2*Math.PI / cantidadCuadros;
+		var pasoText = 1 / cantidadCuadros;
+		var divJC = 1/ (puntos-1);
+		var puntosEje = eje;
+		var vector = [0,0,0];
+		
+		var temp1 = null;
+		
+		var cambioBase = []
+		var norma = 0;
+		for(var j =0; j < puntos - 1; j++)
+		{
+			vector = [eje[3*(j+1)] - eje[3*j],eje[3*(j+1) +1] - eje[3*j +1] ,eje[3*(j+1) +2] - eje[3*j +2]];
+			norma = Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2) +Math.pow(vector[2],2));
+			vector = [vector[0]/norma,vector[1]/norma,vector[2]/norma];
+	
+			for(var i =0; i < cantidadCuadros; i++)
+			{	
+				
+				vertices2= [];
+				vertices2.push(r*Math.cos(paso*i));
+				vertices2.push(0);
+				vertices2.push(r*Math.sin(paso*i));
+		
+				vertices2.push(r*Math.cos(paso*(i+1)));
+				vertices2.push(0);
+				vertices2.push(r*Math.sin(paso*(i+1)));
+				
+				temp1 = rotarTransladar([eje[3*j],eje[3*j+1], eje[3*j+2]],vector, vertices2);
+				vertices.push.apply(vertices,temp1.vertices);
+				
+				temp1 = rotarTransladar([eje[3*(j+1)],eje[3*(j+1)+1], eje[3*(j+1)+2]],vector, vertices2, temp1.cambioBase);
+				vertices.push.apply(vertices,temp1.vertices);
+				
+				coords.push(j*4*cantidadCuadros + i*4);
+				coords.push(j*4*cantidadCuadros + i*4 + 2);
+				coords.push(j*4*cantidadCuadros + i*4 + 1);
+				
+				coords.push(j*4*cantidadCuadros + i*4 + 1);
+				coords.push(j*4*cantidadCuadros + i*4 + 2);
+				coords.push(j*4*cantidadCuadros + i*4 + 3);
+				
+				textCords.push(i*pasoText);
+				textCords.push(1 - j*divJC);
+				
+				textCords.push((i+1)*pasoText);
+				textCords.push(1 - j*divJC);
+				
+				textCords.push((i)*pasoText);
+				textCords.push(1 - (j+1)*divJC);
+
+				textCords.push((i+1)*pasoText);
+				textCords.push(1 - (j+1)*divJC);
+				
+			}
+		}
+		for(var j =0; j < puntos - 2; j++)
+		{
+			for(var i =0; i < cantidadCuadros; i++)
+			{
+				coords.push((j)*4*cantidadCuadros + i*4 +2);
+				coords.push((j+1)*4*cantidadCuadros + i*4 );
+				coords.push((j)*4*cantidadCuadros + i*4 + 3);
+				
+				coords.push((j)*4*cantidadCuadros + i*4 + 3);
+				coords.push((j+1)*4*cantidadCuadros + i*4 );
+				coords.push((j+1)*4*cantidadCuadros + i*4 +1);
+				
+			}
+		}
+		
+		var ret = {vertices : vertices, coords : coords, textCords : textCords, puntosEje : puntosEje};
+		return ret;
+	}
+							</pre>
+							<p> Estos son los elementos necesarios para crear los objetos. Luego poner las texturas es algo MUY sencillo. Antes de mostrarlo es necesario decir que las texturas deben seleccionarse con base a la superficie donde se van a poner y al tamaño de los objetos. Por ejemplo en la esfera debe tener una forma específica para que quede bien, y la resolución es neesaria pues si el objeto es muy grande, y la imagen tiene una resolución muy baja, se va a distorcionar.</p>
+                        </div>  
+                        
+                    </div> <!-- Right column: content -->
+                </div>
+            </div> <!-- row -->
+        </div> <!-- container -->
+                
+        <!-- load JS files -->
+        <script src="js/jquery-1.11.3.min.js"></script>             <!-- jQuery (https://jquery.com/download/) -->
+        <script src="js/jquery.magnific-popup.min.js"></script>     <!-- Magnific pop-up (http://dimsemenov.com/plugins/magnific-popup/) -->
+        <script src="js/jquery.singlePageNav.min.js"></script>      <!-- Single Page Nav (https://github.com/ChrisWojcik/single-page-nav) -->
+        
+		<script>     
+       
+            $(document).ready(function(){
+
+                // Single page nav
+                $('.tm-main-nav').singlePageNav({
+                    'currentClass' : "active",
+                    offset : 20
+                });
+
+                // Magnific pop up
+                $('.tm-gallery-1').magnificPopup({
+                  delegate: 'a', // child items selector, by clicking on it popup will open
+                  type: 'image',
+                  gallery: {enabled:true}
+                  // other options
+                }); 
+
+                $('.tm-gallery-2').magnificPopup({
+                  delegate: 'a', // child items selector, by clicking on it popup will open
+                  type: 'image',
+                  gallery: {enabled:true}
+                  // other options
+                }); 
+
+                $('.tm-gallery-3').magnificPopup({
+                  delegate: 'a', // child items selector, by clicking on it popup will open
+                  type: 'image',
+                  gallery: {enabled:true}
+                  // other options
+                }); 
+
+                $('.tm-current-year').text(new Date().getFullYear());                
+            });
+        </script>             
+</body>
+</html>
