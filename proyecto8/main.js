@@ -769,6 +769,10 @@
 			{
 				luces[i].spotDirectionDestino = [ (Math.random()*3 - 1.5)* sep, -0.7*sep , (Math.random()*2 - 1.5)* sep];
 			}
+			if(i == (cantLuces -2))
+			{
+			  luces[i].spotDirectionActual = [puntosRecorridoBola.ver[Math.floor(conteoBola)*3],-0.7*sep, puntosRecorridoBola.ver[Math.floor(conteoBola)*3 +2]];
+			}
 			gl.uniform3fv(shaderProgram.lucesShad[i+1].pointLightingLocation, luces[i].posicion); // POSICION COLOR
 			gl.uniform3fv(shaderProgram.lucesShad[i+1].pointLightingColor, luces[i].pointLightingColor);
 			gl.uniform1f(shaderProgram.lucesShad[i+1].attenuation, luces[i].attenuation);
