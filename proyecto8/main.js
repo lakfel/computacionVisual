@@ -768,10 +768,12 @@
 			if(cont == 0)
 			{
 				luces[i].spotDirectionDestino = [ (Math.random()*3 - 1.5)* sep, -2*sep , (Math.random()*2 - 1.5)* sep];
+				
 			}
 			if(i == 0)
 			{
 			  luces[i].spotDirectionActual = [puntosRecorridoBola.ver[Math.floor(conteoBola)*3],-2*sep + puntosRecorridoBola.ver[Math.floor(conteoBola)*3+1], puntosRecorridoBola.ver[Math.floor(conteoBola)*3 +2]];
+				luces[i].pointLightingColor = [0.3,0.3,0.3];
 			}
 			else
 			{
