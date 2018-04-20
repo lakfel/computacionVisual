@@ -197,33 +197,33 @@
 			vertices.push(0.5*h);
 			vertices.push(r*Math.sin(paso*i));
 			
-			normales.push(2*vertices[i*12]);
+			normales.push(-2*vertices[i*12]);
 			normales.push(0);
-			normales.push(2*vertices[i*12 + 2]);
+			normales.push(-2*vertices[i*12 + 2]);
 			
 			vertices.push(r*Math.cos(paso*(i+1)));
 			vertices.push(0.5*h);
 			vertices.push(r*Math.sin(paso*(i+1)));
 			
-			normales.push(2*vertices[i*12 +3]);
+			normales.push(-2*vertices[i*12 +3]);
 			normales.push(0);
-			normales.push(2*vertices[i*12 + 5]);
+			normales.push(-2*vertices[i*12 + 5]);
 			
 			vertices.push(r*Math.cos(paso*(i+1)));
 			vertices.push(-0.5*h);
 			vertices.push(r*Math.sin(paso*(i+1)));
 			
-			normales.push(2*vertices[i*12 + 6]);
+			normales.push(-2*vertices[i*12 + 6]);
 			normales.push(0);
-			normales.push(2*vertices[i*12 + 8]);
+			normales.push(-2*vertices[i*12 + 8]);
 			
 			vertices.push(r*Math.cos(paso*(i)));
 			vertices.push(-0.5*h);
 			vertices.push(r*Math.sin(paso*(i)));
 			
-			normales.push(2*vertices[i*12 +9]);
+			normales.push(-2*vertices[i*12 +9]);
 			normales.push(0);
-			normales.push(2*vertices[i*12 + 11]);
+			normales.push(-2*vertices[i*12 + 11]);
 			
 			coords.push(i*4);
 			coords.push(i*4 + 3);

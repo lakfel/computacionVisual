@@ -52,7 +52,10 @@
 
 
     var shaderProgram;
-
+	
+	
+	
+	var cantLuces = 9;
 
     function initShaders() 
 		{
@@ -85,8 +88,58 @@
         shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
         shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, "uUseLighting");
         shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
-        shaderProgram.pointLightingLocationUniform = gl.getUniformLocation(shaderProgram, "uPointLightingLocation");
-        shaderProgram.pointLightingColorUniform = gl.getUniformLocation(shaderProgram, "uPointLightingColor");
+		shaderProgram.lucesShad = new Array(cantLuces);
+		for(var i = 0 ; i < cantLuces; i ++)
+		{
+			shaderProgram.lucesShad[i] = {
+				
+				enable : gl.getUniformLocation(shaderProgram, "luces[" + i + "].enable"),
+				pointLightingLocation : gl.getUniformLocation(shaderProgram, "luces[" + i + "].pointLightingLocation"),
+				pointLightingColor: gl.getUniformLocation(shaderProgram, "luces[" + i + "].pointLightingColor"),
+				attenuation: gl.getUniformLocation(shaderProgram, "luces[" + i + "].attenuation"),
+				spotDirection: gl.getUniformLocation(shaderProgram, "luces[" + i + "].spotDirection"),
+				spotCosineCutoff: gl.getUniformLocation(shaderProgram, "luces[" + i + "].spotCosineCutoff"),
+				spotExponent: gl.getUniformLocation(shaderProgram, "luces[" + i + "].spotExponent")
+			};
+		}
+
+		luces = new Array(cantLuces -1);	
+		
+		for(var i = 0 ; i < cantLuces - 1; i ++)
+		{
+			var n1 = Math.floor(Math.random() + 0.5);
+			var n2 = Math.floor(Math.random() + 0.5);
+			var n3 = Math.floor(Math.random() + 0.5);
+
+			luces[i] = 
+			{
+				//posicion :[sep*Math.cos(2*Math.PI*i/cantLuces), 0.7*sep, sep*Math.sin(2*Math.PI*i/cantLuces)],
+				posicion:[0,0.7*sep,0],
+				pointLightingColor : [0.1 +  n1 *0.5*Math.random(), 0.1 + n2*0.5*Math.random(),0.1 + n3* 0.5*Math.random()],
+				attenuation : 0,
+				spotDirectionActual : [-sep*Math.cos(2*Math.PI*i/cantLuces + Math.PI/8), -0.7*sep, -sep*Math.sin(2*Math.PI*i/cantLuces )],
+				//spotDirectionActual : [0,-1,0],
+				spotDirectionDestino : [ 0.7*(Math.random()*2 - 1)* sep, -0.7*sep , 0.7*(Math.random()*2 - 1)* sep],
+				spotCosineCutoff : 0.97,
+				spotExponent : 40
+			};
+		}
+		/*luces[0].posicion = [-2*sep,2*sep,-2*sep];
+		luces[1].posicion = [-2*sep,2*sep,2*sep];
+		luces[2].posicion = [2*sep,2*sep,-2*sep];
+		luces[3].posicion = [2*sep,2*sep,2*sep];
+
+		luces[0].pointLightingColor = [0.9,0.1,0.1];
+		luces[1].pointLightingColor = [0.1,0.9,0.1];
+		luces[2].pointLightingColor = [0.1,0.1,0.9];
+		luces[3].pointLightingColor = [0.9,0.1,0.9];
+
+		luces[0].attenuation = 0.05;
+		luces[1].attenuation = 0.05;
+		luces[2].attenuation = 0.05;
+		luces[3].attenuation = 0.05;
+
+		luces[0].spotDirectionDestino = []*/
     }
 
 
@@ -216,7 +269,7 @@
             handleLoadedTexture(floorTexture)
         }
 
-		floorTexture.image.src = "proyecto7/grass.jpg";
+		floorTexture.image.src = "proyecto8/grass2.jpg";
 		
 		sceneTexture = gl.createTexture();
         sceneTexture.image = new Image();
@@ -375,7 +428,7 @@
 		//var aroTribuna = crearEsfera(36, 110);
 		
 		sceneVertexPositionBuffer = gl.createBuffer()
-		dimensionGrass = 30;
+		dimensionGrass = 3;
 		var vertices = aroTribuna.vertices;
 		gl.bindBuffer(gl.ARRAY_BUFFER, sceneVertexPositionBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -406,7 +459,7 @@
 		
 		// Piso
 		floorVertexPositionBuffer = gl.createBuffer();
-		dimensionGrass = 40;
+		dimensionGrass = 6;
 		var ofY = -0.4;
 		vertices = [-dimensionGrass,ofY,-dimensionGrass,-dimensionGrass,ofY,dimensionGrass,dimensionGrass,ofY,dimensionGrass,dimensionGrass,ofY,-dimensionGrass];
 		gl.bindBuffer(gl.ARRAY_BUFFER, floorVertexPositionBuffer);
@@ -680,11 +733,52 @@
         mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 400.0, pMatrix);
 		
 		//Esta parte se esta adicionando para la luz
-		gl.uniform3f(shaderProgram.ambientColorUniform, 0.5,0.5 ,0.5); // COLOR AMBIENTE
-		gl.uniform3f(shaderProgram.pointLightingLocationUniform,0, 20, 0); // POSICION COLOR
-        gl.uniform3f(shaderProgram.pointLightingColorUniform, 0.9,0.9,0.3);
+		gl.uniform3f(shaderProgram.ambientColorUniform, 0.05,0.05 ,0.05); // COLOR AMBIENTE
+		gl.uniform3f(shaderProgram.lucesShad[0].pointLightingLocation,0, distSol*Math.cos(conteoSol), distSol*Math.sin(conteoSol)); // POSICION COLOR
+ //gl.uniform3f(shaderProgram.lucesShad[0].pointLightingColor, 0.0,0.0,0.0);
+        gl.uniform3f(shaderProgram.lucesShad[0].pointLightingColor, 0.7 * Math.max(Math.cos(conteoSol),0),0.7 * Math.max(Math.cos(conteoSol),0),0.3 * Math.max(Math.cos(conteoSol),0));
+		gl.uniform1f(shaderProgram.lucesShad[0].attenuation, 0);
+
+
 		
+			
+			
+		gl.uniform3fv(shaderProgram.lucesShad[0].spotDirection, [0.0, -1.0, 0.0]);
+		gl.uniform1f(shaderProgram.lucesShad[0].spotCosineCutoff, 0);
+		gl.uniform1f(shaderProgram.lucesShad[0].spotExponent , 6);
 		
+		for (var i =0; i< cantLuces - 1; i++)
+		{
+			var cont = 0;
+			for (var j =0; j < 3 ; j++)
+			{
+				if(Math.abs(luces[i].spotDirectionActual[j] - luces[i].spotDirectionDestino[j]) > 0.81)
+				{
+					cont++;
+					if(luces[i].spotDirectionActual[j] - luces[i].spotDirectionDestino[j] > 0)
+					{
+						luces[i].spotDirectionActual[j] -= 0.8;
+					}					
+					else
+					{
+						luces[i].spotDirectionActual[j] += 0.8;
+					}
+				}
+			}
+			if(cont == 0)
+			{
+				luces[i].spotDirectionDestino = [ (Math.random()*2 - 1)* sep, -0.7*sep , (Math.random()*2 - 1)* sep];
+			}
+			gl.uniform3fv(shaderProgram.lucesShad[i+1].pointLightingLocation, luces[i].posicion); // POSICION COLOR
+			gl.uniform3fv(shaderProgram.lucesShad[i+1].pointLightingColor, luces[i].pointLightingColor);
+			gl.uniform1f(shaderProgram.lucesShad[i+1].attenuation, luces[i].attenuation);
+			gl.uniform3fv(shaderProgram.lucesShad[i+1].spotDirection, luces[i].spotDirectionActual);
+			gl.uniform1f(shaderProgram.lucesShad[i+1].spotCosineCutoff, luces[i].spotCosineCutoff);
+			gl.uniform1f(shaderProgram.lucesShad[i+1].spotExponent , luces[i].spotExponent);
+			
+		}
+
+
 		//mat4.translate(pMatrix, [0.0, conteoDeg - 15	, -90.0]);
 		mat4.translate(pMatrix, [0.0, -10	, -90.0]);
 		//mat4.rotate(pMatrix, degToRad(conteoDeg), [1, 0, 0]);
@@ -725,18 +819,19 @@
         gl.bindBuffer(gl.ARRAY_BUFFER, floorVertexTextureCoordBuffer);
         gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, floorVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
+		gl.bindBuffer(gl.ARRAY_BUFFER, floorVertexNormalBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, floorVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, floorTexture);
         gl.uniform1i(shaderProgram.samplerUniform, 0);
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, floorVertexNormalBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, floorVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 		
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, floorVertexIndexBuffer);
         setMatrixUniforms();
-		for(var i = -2; i <= 2; i++)
+		for(var i = -15; i <= 15; i++)
 		{
-			for(var j = -2; j < 2; j++)
+			for(var j = -15; j < 15; j++)
 			{
 				mvPushMatrix();
 				mat4.translate(mvMatrix,[2*i*dimensionGrass,0,2*j*dimensionGrass]);
@@ -938,6 +1033,9 @@
 	var conteoDeg = 30;
 	var pasoA = 0.4;
 	var pasoY = 0.5;
+	var distSol = 35;
+    var pasoSol = Math.PI/400;
+	var conteoSol = 0;
     function animate() {
         var timeNow = new Date().getTime();
         if (lastTime != 0) {
@@ -954,6 +1052,7 @@
 				pasoA = 0.4;
 			if(conteoDeg >= 30)
 				pasoA = -0.4;
+			conteoSol += pasoSol;
         }
         lastTime = timeNow;
     }
