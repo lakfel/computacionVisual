@@ -93,12 +93,12 @@ http://www.templatemo.com/tm-501-neaty
 											float spotExponent;
 									};
 									
-									uniform luz luces[5];
+									uniform luz luces[21];
 
 									void main(void) 
 									{
 										vec3 vLuzP = vec3(0.0);
-										for(int i = 0; i <10  ; i++)
+										for(int i = 0; i < 21  ; i++)
 										{
 											vec3 lightDirection = normalize(luces[i].pointLightingLocation - mvPosition.xyz);						
 											float directionalLightWeighting = max(dot(transformedNormal, lightDirection), 0.0);

@@ -55,7 +55,7 @@
 	
 	
 	
-	var cantLuces = 9;
+	var cantLuces = 20;
 
     function initShaders() 
 		{
@@ -114,13 +114,13 @@
 			luces[i] = 
 			{
 				//posicion :[sep*Math.cos(2*Math.PI*i/cantLuces), 0.7*sep, sep*Math.sin(2*Math.PI*i/cantLuces)],
-				posicion:[0,0.7*sep,0],
+				posicion:[0,2*sep,0],
 				pointLightingColor : [0.1 +  n1 *0.5*Math.random(), 0.1 + n2*0.5*Math.random(),0.1 + n3* 0.5*Math.random()],
 				attenuation : 0,
 				spotDirectionActual : [-sep*Math.cos(2*Math.PI*i/cantLuces + Math.PI/8), -0.7*sep, -sep*Math.sin(2*Math.PI*i/cantLuces )],
 				//spotDirectionActual : [0,-1,0],
 				spotDirectionDestino : [ 0.7*(Math.random()*2 - 1)* sep, -0.7*sep , 0.7*(Math.random()*2 - 1)* sep],
-				spotCosineCutoff : 0.95,
+				spotCosineCutoff : 0.99,
 				spotExponent : 40
 			};
 		}
@@ -733,7 +733,7 @@
         mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 400.0, pMatrix);
 		
 		//Esta parte se esta adicionando para la luz
-		gl.uniform3f(shaderProgram.ambientColorUniform, 0.05,0.05 ,0.05); // COLOR AMBIENTE
+		gl.uniform3f(shaderProgram.ambientColorUniform, 0.1,0.1 ,0.1); // COLOR AMBIENTE
 		gl.uniform3f(shaderProgram.lucesShad[0].pointLightingLocation,0, distSol*Math.cos(conteoSol), distSol*Math.sin(conteoSol)); // POSICION COLOR
  //gl.uniform3f(shaderProgram.lucesShad[0].pointLightingColor, 0.0,0.0,0.0);
         gl.uniform3f(shaderProgram.lucesShad[0].pointLightingColor, 0.7 * Math.max(Math.cos(conteoSol),0),0.7 * Math.max(Math.cos(conteoSol),0),0.3 * Math.max(Math.cos(conteoSol),0));
@@ -767,11 +767,15 @@
 			}
 			if(cont == 0)
 			{
-				luces[i].spotDirectionDestino = [ (Math.random()*3 - 1.5)* sep, -0.7*sep , (Math.random()*2 - 1.5)* sep];
+				luces[i].spotDirectionDestino = [ (Math.random()*3 - 1.5)* sep, -2*sep , (Math.random()*2 - 1.5)* sep];
 			}
-			if(i == (cantLuces -2))
+			if(i == 0)
 			{
-			  luces[i].spotDirectionActual = [puntosRecorridoBola.ver[Math.floor(conteoBola)*3],-0.7*sep, puntosRecorridoBola.ver[Math.floor(conteoBola)*3 +2]];
+			  luces[i].spotDirectionActual = [puntosRecorridoBola.ver[Math.floor(conteoBola)*3],-2*sep + puntosRecorridoBola.ver[Math.floor(conteoBola)*3+1], puntosRecorridoBola.ver[Math.floor(conteoBola)*3 +2]];
+			}
+			else
+			{
+				luces[i].spotCosineCutoff = 0.9999;
 			}
 			gl.uniform3fv(shaderProgram.lucesShad[i+1].pointLightingLocation, luces[i].posicion); // POSICION COLOR
 			gl.uniform3fv(shaderProgram.lucesShad[i+1].pointLightingColor, luces[i].pointLightingColor);
