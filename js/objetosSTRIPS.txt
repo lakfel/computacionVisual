@@ -52,8 +52,6 @@
 				coords.push(i*(pisos+1) + j + 1);
 				coords.push((i+1)*(pisos +1) + j + 1);
 			}
-			coords.push((i)*(pisos+1));
-			coords.push((i + 1)*(pisos+1));
 		}
 			
 		var ret = {vertices : vertices, coords : coords, textCords : textCords, normales : normales, primitiva : primitiva};
@@ -334,8 +332,6 @@
 				coords.push((j + 1)*(cantidadCuadros+1) + i +1);
 								
 			}
-			coords.push((j)*(cantidadCuadros+1));
-			coords.push((j + 1)*(cantidadCuadros+1));
 		}
 		
 		var ret = {vertices : vertices, coords : coords, textCords : textCords, puntosEje : puntosEje, normales : normales, primitiva : primitiva};

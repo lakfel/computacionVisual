@@ -974,7 +974,7 @@
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ballVertexIndexBuffer);
         setMatrixUniforms();
-        gl.drawElements(gl.TRIANGLES, ballVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLE_STRIP, ballVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		
 		
 		
@@ -997,7 +997,7 @@
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, canVertexIndexBuffer);
         setMatrixUniforms();
-        gl.drawElements(gl.TRIANGLES, canVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLE_STRIP, canVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		
 		
 		//TAPA 
@@ -1017,7 +1017,7 @@
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, canTopVertexIndexBuffer);
         setMatrixUniforms();
-        gl.drawElements(gl.TRIANGLES, canTopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLE_FAN, canTopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		
 		
 		gl.bindBuffer(gl.ARRAY_BUFFER, canBottomVertexPositionBuffer);
@@ -1035,7 +1035,7 @@
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, canBottomVertexIndexBuffer);
         setMatrixUniforms();
-        gl.drawElements(gl.TRIANGLES, canBottomVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLE_FAN, canBottomVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 	}
 	
 	
