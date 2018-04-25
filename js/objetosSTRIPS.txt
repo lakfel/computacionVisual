@@ -373,3 +373,4 @@
 		this.tapa = crearCirculo(this.definicion, this.r, [this.eje[this.eje.length -3],this.eje[this.eje.length -2],this.eje[this.eje.length -1]],[nEje[nEje.length -3] - nEje[nEje.length -6] ,nEje[nEje.length -2] - nEje[nEje.length -5],nEje[nEje.length -1] - nEje[nEje.length -4]]);
 		this.fondo = crearCirculo(this.definicion, this.r, [this.eje[0],this.eje[1],this.eje[2]], [nEje[3] - nEje[0], nEje[4] - nEje[1], nEje[5]- nEje[2]]);
 	}
+	

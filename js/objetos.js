@@ -357,16 +357,10 @@
 
 	cilindro.prototype.crearCilindro = function()
 	{
-		//this.cilindro = crearCilindroArticuladoConEje(this.definicion, this.r, [0,-this.h/2,0,0.2,-this.h/4,0.5,0.1,this.h/4,0.05,0,this.h/2,0]);
-		/*this.cilindro = crearCilindroArticuladoConEje(this.definicion, this.r,
-			[0 , -this.h/2 , 0 ,
-			 0.2,-this.h/4 ,0.5, 
-			 0,0,0,
-             0.1,this.h/4,0.05,
-             0,this.h/2,0]);*/
+		
 		this.cilindro = crearCilindroArticuladoConEje(this.definicion, this.r, this.eje);
 		this.tapa = crearCirculo(this.definicion, this.r,[this.eje[this.eje.length -3],this.eje[this.eje.length -2],this.eje[this.eje.length -1]], [this.eje[this.eje.length -3] - this.eje[this.eje.length -6] ,this.eje[this.eje.length -2] - this.eje[this.eje.length -5],this.eje[this.eje.length -1] - this.eje[this.eje.length -4]]);
-		this.fondo = crearCirculo(this.definicion, this.r, [this.eje[0],this.eje[1],this.eje[2]] ,[this.eje[3] - this.eje[0], this.eje[4] - this.eje[1], this.eje[5]- this.eje[2]]);
+		this.fondo = crearCirculo(this.definicion, this.r, [this.eje[0],this.eje[1],this.eje[2]] ,[this.eje[0] - this.eje[3], this.eje[1] - this.eje[4], this.eje[2]- this.eje[5]]);
 	}
 
 	cilindro.prototype.actualizarCilindro = function(nEje)
@@ -375,5 +369,5 @@
 		this.eje = nEje;
 		this.cilindro = crearCilindroArticuladoConEje(this.definicion, this.r, nEje);
 		this.tapa = crearCirculo(this.definicion, this.r, [this.eje[this.eje.length -3],this.eje[this.eje.length -2],this.eje[this.eje.length -1]],[nEje[nEje.length -3] - nEje[nEje.length -6] ,nEje[nEje.length -2] - nEje[nEje.length -5],nEje[nEje.length -1] - nEje[nEje.length -4]]);
-		this.fondo = crearCirculo(this.definicion, this.r, [this.eje[0],this.eje[1],this.eje[2]], [nEje[3] - nEje[0], nEje[4] - nEje[1], nEje[5]- nEje[2]]);
+		this.fondo = crearCirculo(this.definicion, this.r, [this.eje[0],this.eje[1],this.eje[2]], [nEje[0] - nEje[3], nEje[1] - nEje[4], nEje[2]- nEje[5]]);
 	}
