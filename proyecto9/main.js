@@ -876,9 +876,9 @@ void main (void) {
 	{
 		lightPMatrix = mat4.create();
 		lightMVMatrix = mat4.create();
-		mat4.perspective(80, gl.viewportWidth / gl.viewportHeight, 0.1, 400.0, lightPMatrix);
+		mat4.perspective(80, 1, 0.1, 400.0, lightPMatrix);
 		//t4.targetTo([0.0, 25 , 28 ], [0.0 ,0.0 , 0.0] ,[,0,0], lightMVMatrix);
-		mat4.lookAt([0.0, distSol* Math.cos(conteoSol), distSol*	Math.sin(conteoSol) + 20 ], [0.0 ,0.0 , 20.0] ,[0,0,20], lightMVMatrix);
+		mat4.lookAt([0.0, distSol* Math.cos(conteoSol), distSol*	Math.sin(conteoSol) + 20 ], [0.0 ,1.0, 20.0] ,[0,0,20], lightMVMatrix);
 		
 		if(!isShadowMapping)
 		{
@@ -892,7 +892,7 @@ void main (void) {
 			switchPrograms(lightShaderProgram, shaderProgram);
 			gl.activeTexture(gl.TEXTURE1);
 			gl.bindTexture(gl.TEXTURE_2D, shadowDepthTexture);
-			//gl.uniform1i(shaderProgram.samplerUniform2, 1);
+			gl.uniform1i(shaderProgram.samplerUniform2, 0);
 			
 			
 			var pMatrix2, mvMatrix2;
@@ -907,6 +907,7 @@ void main (void) {
 			//mat4.lookAt([0.0, distSol* Math.cos(conteoSol), distSol*	Math.sin(conteoSol) + 20 ], [0.0 ,0.0 , 0.0] ,[0,1,0], pMatrix2);
 			gl.uniformMatrix4fv(shaderProgram.sombrasShad[0].pMatrix, false,lightPMatrix);
 			gl.uniformMatrix4fv(shaderProgram.sombrasShad[0].mvMatrix, false,lightMVMatrix);
+			gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 			
 		}
 		else
@@ -922,7 +923,7 @@ void main (void) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, shadowFramebuffer);
 
 			  // Set the viewport to our shadow texture's size
-			//gl.viewport(0, 0, 1024.0, 1024.0);
+			gl.viewport(0, 0, 1024.0, 1024.0);
 			gl.clearColor(0, 0, 0, 1);
 			gl.clearDepth(1.0);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -930,13 +931,13 @@ void main (void) {
 			
 		}
 		
-		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+		
 		if(!isShadowMapping)
 		{
 			
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-			mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 400.0, pMatrix);
+			mat4.perspective(80, gl.viewportWidth / gl.viewportHeight, 0.1, 400.0, pMatrix);
 			
 			
 			
@@ -1058,8 +1059,9 @@ void main (void) {
 		
 		if(!isShadowMapping)
 		{
-			var copy = mat4.create();
-			mat4.multiply( lightMVMatrix,mvMatrix, copy);
+			var copy = copyLIGHT()
+			
+			
 			gl.uniformMatrix4fv(shaderProgram.sombrasShad[0].mvMatrix, false,copy);
 			setMatrixUniforms();
 			gl.drawElements(gl.TRIANGLES, sceneVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
@@ -1102,8 +1104,9 @@ void main (void) {
 				setMatrixUniforms();
 				if(!isShadowMapping)
 				{
-					var copy = mat4.create();
-					mat4.multiply( lightMVMatrix,mvMatrix, copy);
+					var copy = copyLIGHT()
+					
+					
 					gl.uniformMatrix4fv(shaderProgram.sombrasShad[0].mvMatrix, false,copy);
 					gl.drawElements(gl.TRIANGLES, floorVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 				}
@@ -1246,8 +1249,9 @@ void main (void) {
         setMatrixUniforms();
 		if(!isShadowMapping)
 		{
-			var copy = mat4.create();
-			mat4.multiply( lightMVMatrix,mvMatrix, copy);
+			var copy = copyLIGHT()
+			
+			
 			gl.uniformMatrix4fv(shaderProgram.sombrasShad[0].mvMatrix, false,copy);
 			gl.drawElements(gl.TRIANGLE_STRIP, ballVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		}
@@ -1287,8 +1291,9 @@ void main (void) {
         setMatrixUniforms();
 		if(!isShadowMapping)
 		{
-			var copy = mat4.create();
-			mat4.multiply( lightMVMatrix,mvMatrix, copy);
+			var copy = copyLIGHT()
+			
+			
 			gl.uniformMatrix4fv(shaderProgram.sombrasShad[0].mvMatrix, false,copy);
 			gl.drawElements(gl.TRIANGLE_STRIP, canVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		}
@@ -1324,8 +1329,9 @@ void main (void) {
         setMatrixUniforms();
 		if(!isShadowMapping)
 		{
-			var copy = mat4.create();
-			mat4.multiply( lightMVMatrix,mvMatrix, copy);
+			var copy = copyLIGHT()
+			
+			
 			gl.uniformMatrix4fv(shaderProgram.sombrasShad[0].mvMatrix, false,copy);
 			gl.drawElements(gl.TRIANGLE_FAN, canTopVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		}
@@ -1358,8 +1364,9 @@ void main (void) {
         setMatrixUniforms();
 		if(!isShadowMapping)
 		{
-			var copy = mat4.create();
-			mat4.multiply( lightMVMatrix,mvMatrix, copy);
+			var copy = copyLIGHT()
+			
+			
 			gl.uniformMatrix4fv(shaderProgram.sombrasShad[0].mvMatrix, false,copy);
 			gl.drawElements(gl.TRIANGLE_FAN, canBottomVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		}
@@ -1378,6 +1385,16 @@ void main (void) {
 		
 	}
 	
+	function copyLIGHT()
+	{
+		var copy = mat4.create();
+			mat4.multiply(mvMatrix,lightMVMatrix , copy);
+			//copy = lightMVMatrix.slice();
+			
+			//mat4.multiply(mvMatrix,lightPMatrix , copy);
+			//mat4.multiply(copy,lightMVMatrix , copy);
+			return copy;
+	}
 	
     var lastTime = 0;
 	var conteoDeg = 30;
