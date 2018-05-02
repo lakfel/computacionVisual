@@ -136,7 +136,7 @@ http://www.templatemo.com/tm-501-neaty
 											vLuzP += luces[i].pointLightingColor * directionalLightWeighting * attFactos * spotFactor;
 										}
 										vec3 fragmentDepth = shadowPos.xyz;
-										float shadowAcneRemover = 0.7;
+										float shadowAcneRemover = 30.0;
 										fragmentDepth.z -= shadowAcneRemover;
 										float texelSize = 1.0 / 1024.0;
 										float amountInLight =0.0;

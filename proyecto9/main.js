@@ -878,7 +878,8 @@ void main (void) {
 		lightMVMatrix = mat4.create();
 		mat4.perspective(80, 1, 0.1, 400.0, lightPMatrix);
 		//t4.targetTo([0.0, 25 , 28 ], [0.0 ,0.0 , 0.0] ,[,0,0], lightMVMatrix);
-		mat4.lookAt([0.0, distSol* Math.cos(conteoSol), distSol*	Math.sin(conteoSol) + 20 ], [0.0 ,1.0, 20.0] ,[0,0,20], lightMVMatrix);
+		//mat4.lookAt([0.0, distSol* Math.cos(conteoSol), distSol*	Math.sin(conteoSol) + 20 ], [0.0 ,1.0, 20.0] ,[0,0,20], lightMVMatrix);
+		mat4.lookAt([0.0, distSol, distSol + 20 ], [0.0 ,0.0, -10.0] ,[0,4,-1], lightMVMatrix);
 		
 		if(!isShadowMapping)
 		{
@@ -903,6 +904,7 @@ void main (void) {
 			mat4.identity(mvMatrix2);
 			mat4.identity(pMatrix2);
 			mat4.translate(mvMatrix2, [0.0, 0 , 20.0]);
+			//mat4.translate(pMatrix2, [0.0, distSol* Math.cos(conteoSol), distSol*	Math.sin(conteoSol) + 20 ]);
 			mat4.translate(pMatrix2, [0.0, distSol* Math.cos(conteoSol), distSol*	Math.sin(conteoSol) + 20 ]);
 			//mat4.lookAt([0.0, distSol* Math.cos(conteoSol), distSol*	Math.sin(conteoSol) + 20 ], [0.0 ,0.0 , 0.0] ,[0,1,0], pMatrix2);
 			gl.uniformMatrix4fv(shaderProgram.sombrasShad[0].pMatrix, false,lightPMatrix);
@@ -943,9 +945,11 @@ void main (void) {
 			
 			//Esta parte se esta adicionando para la luz
 			gl.uniform3f(shaderProgram.ambientColorUniform, 0.1,0.1 ,0.1); // COLOR AMBIENTE
-			gl.uniform3f(shaderProgram.lucesShad[0].pointLightingLocation,0, distSol*Math.cos(conteoSol), distSol*Math.sin(conteoSol)+ 20); // POSICION COLOR
+			//gl.uniform3f(shaderProgram.lucesShad[0].pointLightingLocation,0, distSol*Math.cos(conteoSol), distSol*Math.sin(conteoSol)+ 20);
+			gl.uniform3f(shaderProgram.lucesShad[0].pointLightingLocation,0, distSol, distSol + 20); // POSICION COLOR
 	 //gl.uniform3f(shaderProgram.lucesShad[0].pointLightingColor, 0.0,0.0,0.0);
-			gl.uniform3f(shaderProgram.lucesShad[0].pointLightingColor, 0.7 * Math.max(Math.cos(conteoSol),0),0.7 * Math.max(Math.cos(conteoSol),0),0.3 * Math.max(Math.cos(conteoSol),0));
+			//gl.uniform3f(shaderProgram.lucesShad[0].pointLightingColor, 0.7 * Math.max(Math.cos(conteoSol),0),0.7 * Math.max(Math.cos(conteoSol),0),0.3 * Math.max(Math.cos(conteoSol),0));
+			gl.uniform3f(shaderProgram.lucesShad[0].pointLightingColor, 0.7 ,0.7 ,0.7 );
 			gl.uniform1f(shaderProgram.lucesShad[0].attenuation, 0.02);
 
 
@@ -1005,7 +1009,7 @@ void main (void) {
 			mat4.translate(pMatrix, [0.0, -10	, -90.0]);
 			//mat4.rotate(pMatrix, degToRad(conteoDeg), [1, 0, 0]);
 			mat4.rotate(pMatrix, degToRad(15), [1, 0, 0]);
-			mat4.rotate(pMatrix, degToRad(yRot2), [0, 1, 0]);
+			//mat4.rotate(pMatrix, degToRad(yRot2), [0, 1, 0]);
 			mat4.translate(pMatrix, [0.0, 4, 0.0]);
 			//mat4.translate(pMatrix, [0.0, 0.0, -10.0]);
 			
@@ -1071,7 +1075,7 @@ void main (void) {
 			mvPushMatrix();
 			mat4.multiply(lightMVMatrix,mvMatrix, mvMatrix);
 			setMatrixUniforms();
-			//gl.drawElements(gl.TRIANGLES, sceneVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+			gl.drawElements(gl.TRIANGLES, sceneVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 			
 		}
 		mvPopMatrix();
@@ -1115,7 +1119,7 @@ void main (void) {
 					mvPushMatrix();
 					mat4.multiply(lightMVMatrix,mvMatrix, mvMatrix);
 					setMatrixUniforms();
-					//gl.drawElements(gl.TRIANGLES, floorVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+					gl.drawElements(gl.TRIANGLES, floorVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 					mvPopMatrix();
 				}
 				
@@ -1380,8 +1384,8 @@ void main (void) {
 		}
 		
         
-		//if(isShadowMapping)
-			//gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		if(isShadowMapping)
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		
 	}
 	
