@@ -769,7 +769,8 @@ function Light() {
 }
 
 Light.prototype.getGlobalCode = function() {
-  return 'uniform vec3 light;';
+  return 'uniform vec3 light;' +
+			'uniform vec3 light2;';
 };
 
 Light.prototype.getIntersectCode = function() {
@@ -1158,6 +1159,7 @@ var angleY = 0;
 var zoomZ = 2.5;
 var eye = Vector.create([0, 0, 0]);
 var light = Vector.create([0.4, 0.5, -0.6]);
+var light2 = Vector.create([0.4, -0.5, -0.6]);
 
 var nextObjectId = 0;
 
