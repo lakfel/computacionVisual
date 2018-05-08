@@ -31,6 +31,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // vertex shader for drawing a textured quad
+
 var renderVertexSource =
 ' attribute vec3 vertex;' +
 ' varying vec2 texCoord;' +
@@ -66,7 +67,7 @@ var lineFragmentSource =
 ' }';
 
 // constants for the shaders
-var bounces = '5';
+var bounces = '3';
 var epsilon = '0.0001';
 var infinity = '10000.0';
 var lightSize = 0.1;
@@ -133,7 +134,7 @@ var intersectCylinderSource =
 '   if(discriminant > 0.0) {' +
 '     	float t1 = (-b - sqrt(discriminant)) / (2.0 * a);' +
 '     	float t2 = (-b + sqrt(discriminant)) / (2.0 * a);' +
-'     	float th1 = (CylinderCenter.y - CylinderHeight / 2.0 - origin.y) / ray.y;' +
+'     	float th1 = (CylinderCenter.y + CylinderHeight / 2.0 - origin.y) / ray.y;' +
 '     	float th2 = (CylinderCenter.y - CylinderHeight / 2.0 - origin.y) / ray.y;' +
 '		vec2 vth1 = origin.xz + ray.xz*th1 - CylinderCenter.xz;' +
 '		vec2 vth2 = origin.xz + ray.xz*th2 - CylinderCenter.xz;' +
@@ -161,11 +162,13 @@ var intersectCylinderSource =
 '   return ' + infinity + ';' +
 ' }';
 
+
+
 // given that hit is a point on the sphere, what is the surface normal?
 var normalForCylinderSource =
 ' vec3 normalForCylinder(vec3 hit, vec3 CylinderCenter, float CylinRadius) {' +
 '	vec2 hitNormal = hit.xz - CylinderCenter.xz;' + 
-'	if(dot(hitNormal,hitNormal) <= (CylinRadius * CylinRadius)){' +
+'	if(dot(hitNormal,hitNormal) == (CylinRadius * CylinRadius)){' +
 '		return vec3(hitNormal.x, 0.0 , hitNormal.y)/CylinRadius;' +
 '	}' +
 '	else if(hit.y > CylinderCenter.y){' +
@@ -337,7 +340,7 @@ function makeCalculateColor(objects) {
 function makeMain() {
   return '' +
 ' void main() {' +
-'   vec3 newLight = light + uniformlyRandomVector(timeSinceStart - 53.0) * ' + lightSize + ';' +
+'   vec3 newLight = light + uniformlyRandomVector(timeSinceStart + 5.0) * ' + lightSize + ';' +
 '   vec3 texture = texture2D(texture, gl_FragCoord.xy / 512.0).rgb;' +
 '   gl_FragColor = vec4(mix(calculateColor(eye, initialRay, newLight), texture, textureWeight), 1.0);' +
 ' }';
@@ -589,7 +592,8 @@ Cylinder.prototype.getIntersectCode = function() {
 Cylinder.prototype.getShadowTestCode = function() {
   return '' +
   this.getIntersectCode() + 
-' if(' + this.intersectStr + ' > -0.5 && ' + this.intersectStr + ' < 0.5 ) return 0.0;';
+  'vec3 temporalHit = origin + ray * ' + this.intersectStr + ';' +
+' if(temporalHit.y  < ' + this.centerStr + '.y + ' + this.heightStr + '/ 2.0 && temporalHit.y  > ' + this.centerStr + '.y - ' + this.heightStr + '/ 2.0 && ' + this.intersectStr + ' <  2.0) return 0.0;';
 };
 
 Cylinder.prototype.getMinimumIntersectCode = function() {
@@ -631,8 +635,8 @@ Cylinder.prototype.intersect = function(origin, ray) {
 Cylinder.intersect = function(origin, ray, CylinderCenter, CylinderRadius, CylinderHeight) {
    var toCylinder = origin.subtract(CylinderCenter);
    var a = ray.dot(ray) - ray.e(2)* ray.e(2);
-   var b = 2.0 * (toCylinder.dot(ray) - toCylinder.e(1)* ray.e(1));
-   var c = toCylinder.dot(toCylinder) - CylinderRadius*CylinderRadius - toCylinder.e(1)* toCylinder.e(1);
+   var b = 2.0 * (toCylinder.dot(ray) - toCylinder.e(2)* ray.e(2));
+   var c = toCylinder.dot(toCylinder) - CylinderRadius*CylinderRadius - toCylinder.e(2)* toCylinder.e(2);
    var discriminant = b*b - 4.0*a*c;
    if(discriminant > 0.0) {
      	var t1 = (-b - Math.sqrt(discriminant)) / (2.0 * a);
@@ -825,7 +829,8 @@ Light.prototype.intersect = function(origin, ray) {
 ////////////////////////////////////////////////////////////////////////////////
 // class PathTracer
 ////////////////////////////////////////////////////////////////////////////////
-
+/*  Esto pinta la ventana que vemos. Al parecer hace solo una superposición de texturas todo el tiempo 
+La ventana que vemos está normalizado de -1 a 1 en x e y*/
 function PathTracer() {
   var vertices = [
     -1, -1,
@@ -840,11 +845,13 @@ function PathTracer() {
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
   // create framebuffer
+  // Asumo que crea la textura y la almacena acá
   this.framebuffer = gl.createFramebuffer();
 
   // create textures
   var type = gl.getExtension('OES_texture_float') ? gl.FLOAT : gl.UNSIGNED_BYTE;
   this.textures = [];
+  //2 texturas pq? no se
   for(var i = 0; i < 2; i++) {
       this.textures.push(gl.createTexture());
     gl.bindTexture(gl.TEXTURE_2D, this.textures[i]);
@@ -855,6 +862,7 @@ function PathTracer() {
   gl.bindTexture(gl.TEXTURE_2D, null);
 
   // create render shader
+  // El programa que pinta todo es suuuuper normal. Solo punta un plano y coloca la textura ahí
   this.renderProgram = compileShader(renderVertexSource, renderFragmentSource);
   this.renderVertexAttribute = gl.getAttribLocation(this.renderProgram, 'vertex');
   gl.enableVertexAttribArray(this.renderVertexAttribute);
@@ -923,8 +931,10 @@ PathTracer.prototype.render = function() {
 ////////////////////////////////////////////////////////////////////////////////
 // class Renderer
 ////////////////////////////////////////////////////////////////////////////////
-
+/* Esto pinta absolutamente todo*/
 function Renderer() {
+	
+  /*Estos vertices se utilizan para pintar las líneas del cuadrado que encierran el objeto seleccionado */	
   var vertices = [
     0, 0, 0,
     1, 0, 0,
@@ -967,13 +977,15 @@ Renderer.prototype.setObjects = function(objects) {
   this.pathTracer.setObjects(objects);
 };
 
+
+
 Renderer.prototype.update = function(modelviewProjection, timeSinceStart) {
-  var jitter = Matrix.Translation(Vector.create([Math.random() * 2 - 1, Math.random() * 2 - 1, 0]).multiply(1 / 512));
+  var jitter = Matrix.Translation(Vector.create([Math.random() * 2 - 1, Math.random() * 2 - 1, 0]).multiply(1 / 512)); // Hace una muy peque;a traslación no se porque
   var inverse = jitter.multiply(modelviewProjection).inverse();
   this.modelviewProjection = modelviewProjection;
   this.pathTracer.update(inverse, timeSinceStart);
 };
-
+//Esto dibuja las lineas
 Renderer.prototype.render = function() {
   this.pathTracer.render();
 
@@ -1156,7 +1168,7 @@ var inputFocusCount = 0;
 
 var angleX = 0;
 var angleY = 0;
-var zoomZ = 2.5;
+var zoomZ = 5;
 var eye = Vector.create([0, 0, 0]);
 var light = Vector.create([0.4, 0.5, -0.6]);
 var light2 = Vector.create([0.4, -0.5, -0.6]);
