@@ -67,7 +67,7 @@ var lineFragmentSource =
 ' }';
 
 // constants for the shaders
-var bounces = '8';
+var bounces = '4';
 var epsilon = '0.0001';
 var infinity = '10000.0';
 var lightSize = 0.1;
@@ -1435,7 +1435,7 @@ window.onload = function() {
 	
     var start = new Date();
     error.style.zIndex = -1;
-    setInterval(function(){ tick((new Date() - start) * 0.001); }, 1000 / 60);
+    setInterval(function(){ tick((new Date() - start) * 0.001); }, 1000 / 600);
   } else {
     error.innerHTML = 'Your browser does not support WebGL.<br>Please see <a href="http://www.khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">Getting a WebGL Implementation</a>.';
   }
