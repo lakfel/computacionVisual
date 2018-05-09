@@ -63,7 +63,7 @@ var lineVertexSource =
 var lineFragmentSource =
 ' precision highp float;' +
 ' void main() {' +
-'   gl_FragColor = vec4(1.0);' +
+'   gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);' +
 ' }';
 
 // constants for the shaders
@@ -283,8 +283,8 @@ function makeShadow(objects) {
 
 function makeCalculateColor(objects) {
   return '' +
-' vec3 calculateColor(vec3 origin, vec3 ray, vec3 light) {' +
-'   vec3 colorMask = vec3(1.0);' +
+' vec3 calculateColor(vec3 origin, vec3 ray, vec3 light, vec3 colorMask) {' +
+//'   vec3 colorMask = vec3(1.0);' +
 '   vec3 accumulatedColor = vec3(0.0);' +
   
     // main raytracing loop
@@ -778,21 +778,21 @@ Cube.intersect = function(origin, ray, cubeMin, cubeMax) {
 // class Light
 ////////////////////////////////////////////////////////////////////////////////
 
-function Light(id, posicion){//, color) {
+function Light(id, posicion, color) {
   this.temporaryTranslation = Vector.create([0, 0, 0]);
   this.lightId = 'light' + id;
   this.id = id;
   this.light = Vector.create(posicion);
   this.lightSize = 0.1;
   this.colorStr = this.lightId + 'Color';
-  //this.color = color;
+  this.color = color;
 }
 
 Light.prototype.getPushingCode = function(index)
 {
 	return '' +
-	'vec3 new' + this.lightId + ' = ' + this.lightId + ' + uniformlyRandomVector(timeSinceStart + 5.0) * ' + lightSize + ';' +
-	'resultLight += calculateColor(eye, initialRay, ' + this.lightId + ');';
+	'vec3 new' + this.lightId + ' = ' + this.lightId + ' + uniformlyRandomVector(timeSinceStart + 5.0) * ' + this.lightSize + ';' +
+	'resultLight += calculateColor(eye, initialRay, ' + this.lightId + ', vec3(' + this.color.e(1) + ', ' + this.color.e(2) + ', ' + this.color.e(3) + '));';
 };
 
 Light.prototype.getGlobalCode = function() {
@@ -828,14 +828,16 @@ Light.clampPosition = function(position) {
 };
 
 Light.prototype.temporaryTranslate = function(translation) {
-  var tempLight = this.light.add(translation);
-  Light.clampPosition(tempLight);
-  this.temporaryTranslation = tempLight.subtract(this.light);
+  //var tempLight = this.light.add(translation);
+  //Light.clampPosition(tempLight);
+  //this.temporaryTranslation = tempLight.subtract(this.light);
+  this.temporaryTranslation = translation;
 };
 
 Light.prototype.translate = function(translation) {
-  this.light = this.light.add(translation);
-  Light.clampPosition(this.light);
+	this.light = this.light.add(translation);
+  //this.light = this.light.add(translation);
+  //Light.clampPosition(this.light);
 };
 
 Light.prototype.getMinCorner = function() {
@@ -1163,7 +1165,7 @@ UI.prototype.selectLight = function() {
 };
 
 UI.prototype.addLight = function() {
-  this.lights.push(new Light(nextObjectId++, [0.4, 0.5, -0.6]));
+  this.lights.push(new Light(nextObjectId++, [0.4, 0.5, -0.6], Vector.create([1.0,1.0,1.0])));
   this.renderer.setObjects(this.objects, this.lights);
 };
 
@@ -1231,7 +1233,7 @@ var inputFocusCount = 0;
 
 var angleX = 0;
 var angleY = 0;
-var zoomZ = 5;
+var zoomZ = 2.5;
 var eye = Vector.create([0, 0, 0]);
 var light = Vector.create([0.4, 0.5, -0.6]);
 var lights = [];
@@ -1426,8 +1428,8 @@ window.onload = function() {
     ui = new UI();
 	
 	
-	lights.push(new Light(nextObjectId++, [0.4, 0.5, -0.6]));
-	lights.push(new Light(nextObjectId++, [0.4, -0.5, -0.6]));
+	lights.push(new Light(nextObjectId++, [0.4, 0.5, -0.6], Vector.create([1.0,1.0,0.0])));
+	lights.push(new Light(nextObjectId++, [0.4, -0.5, -0.6], Vector.create([1.0,0.0,0.0])));
     ui.setObjects(makeSphereColumn(), lights);
 	
     var start = new Date();
