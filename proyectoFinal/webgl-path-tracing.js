@@ -274,7 +274,7 @@ var redGreenCornellBox =
 ' else if(hit.x > 0.9999) surfaceColor = vec3(0.3, 1.0, 0.1);'; // green
 
 function makeShadow(objects) {
-  return '' +
+   return '' +
 ' float shadow(vec3 origin, vec3 ray) {' +
     concat(objects, function(o){ return o.getShadowTestCode(); }) +
 '   return 1.0;' +
@@ -288,67 +288,77 @@ function makeCalculateColor(objects) {
 '   vec3 accumulatedColor = vec3(0.0);' +
   
     // main raytracing loop
-'   for(int bounce = 0; bounce < ' + bounces + '; bounce++) {' +
-      // compute the intersection with everything
-'     vec2 tRoom = intersectCube(origin, ray, roomCubeMin, roomCubeMax);' +
-      concat(objects, function(o){ return o.getIntersectCode(); }) +
+//'	for(int i = 0; i < lights.length(); i++){' +
+//'		vec3 light = lights[i];' +
+'   	for(int bounce = 0; bounce < ' + bounces + '; bounce++) {' +
+		// compute the intersection with everything
+'     	vec2 tRoom = intersectCube(origin, ray, roomCubeMin, roomCubeMax);' +
+		concat(objects, function(o){ return o.getIntersectCode(); }) +
 
-      // find the closest intersection
-'     float t = ' + infinity + ';' +
-'     if(tRoom.x < tRoom.y) t = tRoom.y;' +
-      concat(objects, function(o){ return o.getMinimumIntersectCode(); }) +
+		// find the closest intersection
+'     	float t = ' + infinity + ';' +
+'     	if(tRoom.x < tRoom.y) t = tRoom.y;' +
+		concat(objects, function(o){ return o.getMinimumIntersectCode(); }) +
 
-      // info about hit
-'     vec3 hit = origin + ray * t;' +
-'     vec3 surfaceColor = vec3(0.75);' +
-'     float specularHighlight = 0.0;' +
-'     vec3 normal;' +
+		// info about hit
+'     	vec3 hit = origin + ray * t;' +
+'     	vec3 surfaceColor = vec3(0.75);' +
+'     	float specularHighlight = 0.0;' +
+'     	vec3 normal;' +
 
-      // calculate the normal (and change wall color)
-'     if(t == tRoom.y) {' +
-'       normal = -normalForCube(hit, roomCubeMin, roomCubeMax);' +
-        [yellowBlueCornellBox, redGreenCornellBox][environment] +
-        newDiffuseRay +
-'     } else if(t == ' + infinity + ') {' +
-'       break;' +
-'     } else {' +
-'       if(false) ;' + // hack to discard the first 'else' in 'else if'
-        concat(objects, function(o){ return o.getNormalCalculationCode(); }) +
-        [newDiffuseRay, newReflectiveRay, newGlossyRay][material] +
-'     }' +
+		// calculate the normal (and change wall color)
+'     	if(t == tRoom.y) {' +
+'       	normal = -normalForCube(hit, roomCubeMin, roomCubeMax);' +
+			[yellowBlueCornellBox, redGreenCornellBox][environment] +
+			newDiffuseRay +
+'     	} else if(t == ' + infinity + ') {' +
+'       	break;' +
+'     	} else {' +
+'       	if(false) ;' + // hack to discard the first 'else' in 'else if'
+			concat(objects, function(o){ return o.getNormalCalculationCode(); }) +
+			[newDiffuseRay, newReflectiveRay, newGlossyRay][material] +
+'     	}' 	+
 
-      // compute diffuse lighting contribution
-'     vec3 toLight = light - hit;' +
-'     float diffuse = max(0.0, dot(normalize(toLight), normal));' +
+		// compute diffuse lighting contribution
+'     	vec3 toLight = light - hit;' +
+'     	float diffuse = max(0.0, dot(normalize(toLight), normal));' +
 
-      // trace a shadow ray to the light
-'     float shadowIntensity = shadow(hit + normal * ' + epsilon + ', toLight);' +
+		// trace a shadow ray to the light
+'     	float shadowIntensity = shadow(hit + normal * ' + epsilon + ', toLight);' +
 
-      // do light bounce
-'     colorMask *= surfaceColor;' +
-'     accumulatedColor += colorMask * (' + lightVal + ' * diffuse * shadowIntensity);' +
-'     accumulatedColor += colorMask * specularHighlight * shadowIntensity;' +
+		// do light bounce
+'     	colorMask *= surfaceColor;' +
+'     	accumulatedColor += colorMask * (' + lightVal + ' * diffuse * shadowIntensity);' +
+'     	accumulatedColor += colorMask * specularHighlight * shadowIntensity;' +
 
-      // calculate next origin
-'     origin = hit;' +
-'   }' +
+		// calculate next origin
+'     	origin = hit;' +
+'   	}' +
+//'   }' +
 
 '   return accumulatedColor;' +
 ' }';
 }
 
-function makeMain() {
+function makeMain(lights) {
+	var str = '';	
+  for(var i = 0; i < lights.length; i++)
+	  str += lights[i].getPushingCode(i);
   return '' +
 ' void main() {' +
-'   vec3 newLight = light + uniformlyRandomVector(timeSinceStart + 5.0) * ' + lightSize + ';' +
+//'   vec3 newLight = light + uniformlyRandomVector(timeSinceStart + 5.0) * ' + lightSize + ';' +
+'	vec3 resultLight = vec3(0.0);' +
+//'   vec3 newLight = light + uniformlyRandomVector(timeSinceStart + 5.0) * ' + lightSize + ';' +
+	str + 
 '   vec3 texture = texture2D(texture, gl_FragCoord.xy / 512.0).rgb;' +
-'   gl_FragColor = vec4(mix(calculateColor(eye, initialRay, newLight), texture, textureWeight), 1.0);' +
+'   gl_FragColor = vec4(mix(resultLight, texture, textureWeight), 1.0);' +
 ' }';
 }
 
-function makeTracerFragmentSource(objects) {
+function makeTracerFragmentSource(objects, ligths) {
   return tracerFragmentSourceHeader +
   concat(objects, function(o){ return o.getGlobalCode(); }) +
+  concat(lights, function(o){ return o.getGlobalCode(); }) +
   intersectCubeSource +
   normalForCubeSource +
   intersectCylinderSource +
@@ -361,7 +371,7 @@ function makeTracerFragmentSource(objects) {
   uniformlyRandomVectorSource +
   makeShadow(objects) +
   makeCalculateColor(objects) +
-  makeMain();
+  makeMain(ligths);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -768,13 +778,26 @@ Cube.intersect = function(origin, ray, cubeMin, cubeMax) {
 // class Light
 ////////////////////////////////////////////////////////////////////////////////
 
-function Light() {
+function Light(id, posicion){//, color) {
   this.temporaryTranslation = Vector.create([0, 0, 0]);
+  this.lightId = 'light' + id;
+  this.id = id;
+  this.light = Vector.create(posicion);
+  this.lightSize = 0.1;
+  this.colorStr = this.lightId + 'Color';
+  //this.color = color;
 }
 
+Light.prototype.getPushingCode = function(index)
+{
+	return '' +
+	'vec3 new' + this.lightId + ' = ' + this.lightId + ' + uniformlyRandomVector(timeSinceStart + 5.0) * ' + lightSize + ';' +
+	'resultLight += calculateColor(eye, initialRay, ' + this.lightId + ');';
+};
+
 Light.prototype.getGlobalCode = function() {
-  return 'uniform vec3 light;' +
-			'uniform vec3 light2;';
+  return 'uniform vec3 ' + this.lightId + ';' ;
+	//	'uniform vec3 ' + this.colorStr;
 };
 
 Light.prototype.getIntersectCode = function() {
@@ -794,32 +817,33 @@ Light.prototype.getNormalCalculationCode = function() {
 };
 
 Light.prototype.setUniforms = function(renderer) {
-  renderer.uniforms.light = light.add(this.temporaryTranslation);
+  renderer.uniforms[this.lightId] = this.light.add(this.temporaryTranslation);
+  //renderer.uniforms[this.colorStr] = this.color;
 };
 
 Light.clampPosition = function(position) {
   for(var i = 0; i < position.elements.length; i++) {
-    position.elements[i] = Math.max(lightSize - 1, Math.min(1 - lightSize, position.elements[i]));
+    position.elements[i] = Math.max(this.lightSize - 1, Math.min(1 - this.lightSize, position.elements[i]));
   }
 };
 
 Light.prototype.temporaryTranslate = function(translation) {
-  var tempLight = light.add(translation);
+  var tempLight = this.light.add(translation);
   Light.clampPosition(tempLight);
-  this.temporaryTranslation = tempLight.subtract(light);
+  this.temporaryTranslation = tempLight.subtract(this.light);
 };
 
 Light.prototype.translate = function(translation) {
-  light = light.add(translation);
-  Light.clampPosition(light);
+  this.light = this.light.add(translation);
+  Light.clampPosition(this.light);
 };
 
 Light.prototype.getMinCorner = function() {
-  return light.add(this.temporaryTranslation).subtract(Vector.create([lightSize, lightSize, lightSize]));
+  return this.light.add(this.temporaryTranslation).subtract(Vector.create([this.lightSize, this.lightSize, this.lightSize]));
 };
 
 Light.prototype.getMaxCorner = function() {
-  return light.add(this.temporaryTranslation).add(Vector.create([lightSize, lightSize, lightSize]));
+  return this.light.add(this.temporaryTranslation).add(Vector.create([this.lightSize, this.lightSize, this.lightSize]));
 };
 
 Light.prototype.intersect = function(origin, ray) {
@@ -873,24 +897,34 @@ function PathTracer() {
   this.tracerProgram = null;
 }
 
-PathTracer.prototype.setObjects = function(objects) {
+PathTracer.prototype.setObjects = function(objects, ligths) {
   this.uniforms = {};
   this.sampleCount = 0;
   this.objects = objects;
-
+  this.lights = lights;
   // create tracer shader
   if(this.tracerProgram != null) {
     gl.deleteProgram(this.shaderProgram);
   }
-  this.tracerProgram = compileShader(tracerVertexSource, makeTracerFragmentSource(objects));
+  this.tracerProgram = compileShader(tracerVertexSource, makeTracerFragmentSource(objects, lights));
   this.tracerVertexAttribute = gl.getAttribLocation(this.tracerProgram, 'vertex');
   gl.enableVertexAttribArray(this.tracerVertexAttribute);
+};
+
+PathTracer.prototype.setLights = function(lights) {
+  //this.uniforms = {};
+  //this.sampleCount = 0;
+  this.lights = lights;
+
 };
 
 PathTracer.prototype.update = function(matrix, timeSinceStart) {
   // calculate uniforms
   for(var i = 0; i < this.objects.length; i++) {
     this.objects[i].setUniforms(this);
+  }
+  for(var i = 0; i < this.lights.length; i++) {
+    this.lights[i].setUniforms(this);
   }
   this.uniforms.eye = eye;
   this.uniforms.glossiness = glossiness;
@@ -971,10 +1005,16 @@ function Renderer() {
   this.pathTracer = new PathTracer();
 }
 
-Renderer.prototype.setObjects = function(objects) {
+Renderer.prototype.setObjects = function(objects, lights) {
   this.objects = objects;
   this.selectedObject = null;
   this.pathTracer.setObjects(objects);
+};
+
+Renderer.prototype.setLights = function(lights) {
+  this.lights = lights;
+  this.selectedlight = null;
+  this.pathTracer.setLights(lights);
 };
 
 
@@ -1011,12 +1051,21 @@ Renderer.prototype.render = function() {
 function UI() {
   this.renderer = new Renderer();
   this.moving = false;
+  this.currentLight = 0;
 }
 
-UI.prototype.setObjects = function(objects) {
+UI.prototype.setObjects = function(objects, lights) {
   this.objects = objects;
-  this.objects.splice(0, 0, new Light());
-  this.renderer.setObjects(this.objects);
+  this.lights = lights;
+  //this.objects.splice(0, 0, new Light());
+  this.renderer.setObjects(this.objects, lights);
+};
+
+UI.prototype.setLights = function(lights) {
+  this.lights = lights;
+  
+  //this.objects.splice(0, 0, new Light());
+  this.renderer.setLights(this.lights);
 };
 
 UI.prototype.update = function(timeSinceStart) {
@@ -1065,6 +1114,13 @@ UI.prototype.mouseDown = function(x, y) {
       this.renderer.selectedObject = this.objects[i];
     }
   }
+  for(var i = 0; i < this.lights.length; i++) {
+    var objectT = this.lights[i].intersect(origin, ray);
+    if(objectT < t) {
+      t = objectT;
+      this.renderer.selectedObject = this.lights[i];
+    }
+  }
 
   return (t < Number.MAX_VALUE);
 };
@@ -1101,22 +1157,29 @@ UI.prototype.render = function() {
 };
 
 UI.prototype.selectLight = function() {
-  this.renderer.selectedObject = this.objects[0];
+  this.currentLight ++;
+  this.currentLight  = this.currentLight % this.lights.length;
+  this.renderer.selectedObject = this.lights[this.currentLight];
+};
+
+UI.prototype.addLight = function() {
+  this.lights.push(new Light(nextObjectId++, [0.4, 0.5, -0.6]));
+  this.renderer.setObjects(this.objects, this.lights);
 };
 
 UI.prototype.addSphere = function() {
   this.objects.push(new Sphere(Vector.create([0, 0, 0]), 0.25, nextObjectId++));
-  this.renderer.setObjects(this.objects);
+  this.renderer.setObjects(this.objects, this.lights);
 };
 
 UI.prototype.addCylinder = function() {
   this.objects.push(new Cylinder(Vector.create([0, 0, 0]), 0.25, 0.5, nextObjectId++));
-  this.renderer.setObjects(this.objects);
+  this.renderer.setObjects(this.objects, this.lights);
 };
 
 UI.prototype.addCube = function() {
   this.objects.push(new Cube(Vector.create([-0.25, -0.25, -0.25]), Vector.create([0.25, 0.25, 0.25]), nextObjectId++));
-  this.renderer.setObjects(this.objects);
+  this.renderer.setObjects(this.objects, this.lights);
 };
 
 UI.prototype.deleteSelection = function() {
@@ -1124,7 +1187,7 @@ UI.prototype.deleteSelection = function() {
     if(this.renderer.selectedObject == this.objects[i]) {
       this.objects.splice(i, 1);
       this.renderer.selectedObject = null;
-      this.renderer.setObjects(this.objects);
+      this.renderer.setObjects(this.objects, this.lights);
       break;
     }
   }
@@ -1134,7 +1197,7 @@ UI.prototype.updateMaterial = function() {
   var newMaterial = parseInt(document.getElementById('material').value, 10);
   if(material != newMaterial) {
     material = newMaterial;
-    this.renderer.setObjects(this.objects);
+    this.renderer.setObjects(this.objects, this.lights);
   }
 };
 
@@ -1142,7 +1205,7 @@ UI.prototype.updateEnvironment = function() {
   var newEnvironment = parseInt(document.getElementById('environment').value, 10);
   if(environment != newEnvironment) {
     environment = newEnvironment;
-    this.renderer.setObjects(this.objects);
+    this.renderer.setObjects(this.objects, this.lights);
   }
 };
 
@@ -1171,7 +1234,7 @@ var angleY = 0;
 var zoomZ = 5;
 var eye = Vector.create([0, 0, 0]);
 var light = Vector.create([0.4, 0.5, -0.6]);
-var light2 = Vector.create([0.4, -0.5, -0.6]);
+var lights = [];
 
 var nextObjectId = 0;
 
@@ -1361,7 +1424,12 @@ window.onload = function() {
     material = parseInt(document.getElementById('material').value, 10);
     environment = parseInt(document.getElementById('environment').value, 10);
     ui = new UI();
-    ui.setObjects(makeSphereColumn());
+	
+	
+	lights.push(new Light(nextObjectId++, [0.4, 0.5, -0.6]));
+	lights.push(new Light(nextObjectId++, [0.4, -0.5, -0.6]));
+    ui.setObjects(makeSphereColumn(), lights);
+	
     var start = new Date();
     error.style.zIndex = -1;
     setInterval(function(){ tick((new Date() - start) * 0.001); }, 1000 / 60);
