@@ -67,7 +67,7 @@ var lineFragmentSource =
 ' }';
 
 // constants for the shaders
-var bounces = '3';
+var bounces = '8';
 var epsilon = '0.0001';
 var infinity = '10000.0';
 var lightSize = 0.1;
@@ -321,7 +321,7 @@ function makeCalculateColor(objects) {
 
 		// compute diffuse lighting contribution
 '     	vec3 toLight = light - hit;' +
-'     	float diffuse = max(0.0, dot(normalize(toLight), normal));' +
+'     	float diffuse = max(0.0, dot(normalize(toLight), normal)) / ((length(toLight) * length(toLight))/ 2.0 );' +
 
 		// trace a shadow ray to the light
 '     	float shadowIntensity = shadow(hit + normal * ' + epsilon + ', toLight);' +
@@ -350,6 +350,7 @@ function makeMain(lights) {
 '	vec3 resultLight = vec3(0.0);' +
 //'   vec3 newLight = light + uniformlyRandomVector(timeSinceStart + 5.0) * ' + lightSize + ';' +
 	str + 
+'	resultLight = resultLight/ ' + lights.length.toFixed(1) + ';' +
 '   vec3 texture = texture2D(texture, gl_FragCoord.xy / 512.0).rgb;' +
 '   gl_FragColor = vec4(mix(resultLight, texture, textureWeight), 1.0);' +
 ' }';
