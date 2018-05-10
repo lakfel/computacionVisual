@@ -1551,7 +1551,7 @@ function selectChange()
 {
 	var select = document.getElementById('lightsSelect');
 	var value = select.value;
-	currentLight = value.substr(5,2);
+	currentLight = select.selectedIndex;
 	updateRanges();
 	
 }
