@@ -350,7 +350,7 @@ function makeMain(lights) {
 '	vec3 resultLight = vec3(0.0);' +
 //'   vec3 newLight = light + uniformlyRandomVector(timeSinceStart + 5.0) * ' + lightSize + ';' +
 	str + 
-'	resultLight = resultLight/ ' + lights.length.toFixed(1) + ';' +
+'	resultLight = resultLight/ ' + lights.length.toFixed(2) + ';' +
 '   vec3 texture = texture2D(texture, gl_FragCoord.xy / 512.0).rgb;' +
 '   gl_FragColor = vec4(mix(resultLight, texture, textureWeight), 1.0);' +
 ' }';
@@ -1594,5 +1594,5 @@ function onChangeRanges()
 	lights[currentLight].color.setElements([redRange.value/255, greenRange.value/255, blueRange.value/255]);
 	lights[currentLight].sizeL = sizeRange.value/1;
 	updateRanges();
-	ui.setObjects(makeSphereColumn(), lights);
+	ui.setObjects(ui.objects, lights);
 }
