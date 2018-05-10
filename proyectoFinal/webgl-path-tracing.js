@@ -283,7 +283,7 @@ function makeShadow(objects) {
 
 function makeCalculateColor(objects) {
   return '' +
-' vec3 calculateColor(vec3 origin, vec3 ray, vec3 light, vec3 colorMask) {' +
+' vec3 calculateColor(vec3 origin, vec3 ray, vec3 light, vec3 colorMask, float size) {' +
 //'   vec3 colorMask = vec3(1.0);' +
 '   vec3 accumulatedColor = vec3(0.0);' +
   
@@ -321,7 +321,7 @@ function makeCalculateColor(objects) {
 
 		// compute diffuse lighting contribution
 '     	vec3 toLight = light - hit;' +
-'     	float diffuse = max(0.0, dot(normalize(toLight), normal)) / ((length(toLight) * length(toLight))/ 2.0 );' +
+'     	float diffuse = max(0.0, dot(normalize(toLight), normal)) / ((length(toLight) * length(toLight))/ size );' +
 
 		// trace a shadow ray to the light
 '     	float shadowIntensity = shadow(hit + normal * ' + epsilon + ', toLight);' +
@@ -785,6 +785,7 @@ function Light(id, posicion, color) {
   this.id = id;
   this.light = Vector.create(posicion);
   this.lightSize = 0.1;
+  this.sizeL = 2.0;
   this.colorStr = this.lightId + 'Color';
   this.color = color;
 }
@@ -793,7 +794,7 @@ Light.prototype.getPushingCode = function(index)
 {
 	return '' +
 	'vec3 new' + this.lightId + ' = ' + this.lightId + ' + uniformlyRandomVector(timeSinceStart + 5.0) * ' + this.lightSize + ';' +
-	'resultLight += calculateColor(eye, initialRay, ' + this.lightId + ', vec3(' + this.color.e(1) + ', ' + this.color.e(2) + ', ' + this.color.e(3) + '));';
+	'resultLight += calculateColor(eye, initialRay, ' + this.lightId + ', vec3(' + this.color.e(1) + ', ' + this.color.e(2) + ', ' + this.color.e(3) + ' ), ' + this.sizeL.toFixed(1) + ');';
 };
 
 Light.prototype.getGlobalCode = function() {
@@ -1564,15 +1565,22 @@ function updateRanges()
 	var forGreenRange = document.getElementById('forGreenRange');
 	var blueRange = document.getElementById('blueRange');
 	var forBlueRange = document.getElementById('forBlueRange');
+	var sizeRange = document.getElementById('sizeRange');
+	var forSize = document.getElementById('forSizeRange');
+	
 	var value = (255 * lights[currentLight].color.elements[0]) + "";
 	redRange.value = value;
 	value = 255 * (lights[currentLight].color.elements[1]) + "";
 	greenRange.value = value;
 	value = 255 * (lights[currentLight].color.elements[2]) + "";
 	blueRange.value = value;
+	sizeRange.value = lights[currentLight].sizeL;
+	
+	
 	forRedRange.innerHTML = redRange.value;
 	forGreenRange.innerHTML = greenRange.value;
 	forBlueRange.innerHTML = blueRange.value;
+	forSizeRange.innerHTML = sizeRange.value;
 }
 
 function onChangeRanges()
@@ -1581,8 +1589,10 @@ function onChangeRanges()
 	var redRange = document.getElementById('redRange');
 	var greenRange = document.getElementById('greenRange');
 	var blueRange = document.getElementById('blueRange');
+	var sizeRange = document.getElementById('sizeRange');
 	
 	lights[currentLight].color.setElements([redRange.value/255, greenRange.value/255, blueRange.value/255]);
+	lights[currentLight].sizeL = sizeRange.value/1;
 	updateRanges();
 	ui.setObjects(makeSphereColumn(), lights);
 }

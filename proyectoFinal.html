@@ -94,19 +94,62 @@ http://www.templatemo.com/tm-501-neaty
 											</td>
 											<td>
 												<div>
-													<p>Lights</p>
-														<button onclick="javascript:ui.addLight()">Add Light</button>
-														<br>
-														<select id = "lightsSelect" onchange = "selectChange()"></select>
-														<br>
-														<button onclick="javascript:ui.selectLight()">Select Light</button>
-														<br>
-														<input type = "range" max = "255" min = "0" id = "redRange" onchange = "onChangeRanges()"><p id = "forRedRange"></p>
-														<br>
-														<input type = "range" max = "255" min = "0" id = "greenRange" onchange = "onChangeRanges()"><p id = "forGreenRange"></p>
-														<br>
-														<input type = "range" max = "255" min = "0" id = "blueRange" onchange = "onChangeRanges()"><p id = "forBlueRange"></p>
-														<br>
+													<table>
+														<tr>
+															<td>
+																<p>Lights</p>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<button onclick="javascript:ui.addLight()">Add Light</button>
+															</td>
+														</td>
+														<tr>
+															<td>
+																<select id = "lightsSelect" onchange = "selectChange()"></select>
+															</td>
+															<td>
+																<button onclick="javascript:ui.selectLight()">Select Light</button>
+															</td>
+														</tr>
+														<tr>
+															<td>	
+																<input type = "range" max = "255" min = "0" id = "redRange" onchange = "onChangeRanges()">
+															</td>
+															<td>
+																<p id = "forRedRange"></p>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<input type = "range" max = "255" min = "0" id = "greenRange" onchange = "onChangeRanges()">
+															</td>
+															<td>
+																<p id = "forGreenRange"></p>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<input type = "range" max = "255" min = "0" id = "blueRange" onchange = "onChangeRanges()">
+															</td>
+															<td>
+																<p id = "forBlueRange"></p>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<p>Size</p>
+															</td>
+															<td>
+																<input type = "range" min = "0" max = "2" step = "0.05" id = "sizeRange" onchange = "onChangeRanges()">
+															</td>
+															<td>
+																<p id = "forSizeRange"></p>
+															</td>
+														</tr>
+													</table>
 												</div>
 											</td>
 										</tr>
