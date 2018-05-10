@@ -86,17 +86,38 @@ http://www.templatemo.com/tm-501-neaty
 									<h2> Primer Sprint </h2>
 								
 									<p>Para comenzar utilizamos el ejemplo del <a href = "proyecto10.html">proyecto10</a> que es una adecuación del código original de Evan que se puede encontrar en <a href="http://madebyevan.com/webgl-path-tracing/">este link</a> Y cuyo código fuente lo encuentran en github. Lo que se está realizando es un estudio de la aplicación de la luz. En este caso pbservamos que la luz no cuenta </p>
-									
-									<canvas id="canvas" width="512" height="512"></canvas>
-									<div id="error"><noscript>Please enable JavaScript.</noscript></div>
-
+									<table>
+										<tr>
+											<td>
+												<canvas id="canvas" width="512" height="512"></canvas>
+												<div id="error"><noscript>Please enable JavaScript.</noscript></div>
+											</td>
+											<td>
+												<div>
+													<p>Lights</p>
+														<button onclick="javascript:ui.addLight()">Add Light</button>
+														<br>
+														<select id = "lightsSelect" onchange = "selectChange()"></select>
+														<br>
+														<button onclick="javascript:ui.selectLight()">Select Light</button>
+														<br>
+														<input type = "range" max = "255" min = "0" id = "redRange" onchange = "onChangeRanges()"><p id = "forRedRange"></p>
+														<br>
+														<input type = "range" max = "255" min = "0" id = "greenRange" onchange = "onChangeRanges()"><p id = "forGreenRange"></p>
+														<br>
+														<input type = "range" max = "255" min = "0" id = "blueRange" onchange = "onChangeRanges()"><p id = "forBlueRange"></p>
+														<br>
+												</div>
+											</td>
+										</tr>
+									</table>
 									<p>
-									  <button onclick="javascript:ui.selectLight()">Select Light</button>
-									  <button onclick="javascript:ui.addLight()">Add Light</button>
 									  <button onclick="javascript:ui.addSphere()">Add Sphere</button>
 									  <button onclick="javascript:ui.addCube()">Add Cube</button>
 									  <button onclick="javascript:ui.addCylinder()">Add Cylinder</button>
 									</p>
+									
+									
 
 									<p>
 									  <b>Material:</b>

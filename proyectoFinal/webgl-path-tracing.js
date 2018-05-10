@@ -1160,13 +1160,14 @@ UI.prototype.render = function() {
 };
 
 UI.prototype.selectLight = function() {
-  this.currentLight ++;
-  this.currentLight  = this.currentLight % this.lights.length;
-  this.renderer.selectedObject = this.lights[this.currentLight];
+  
+  this.renderer.selectedObject = this.lights[currentLight];
 };
 
 UI.prototype.addLight = function() {
-  this.lights.push(new Light(nextObjectId++, [0.4, 0.5, -0.6], Vector.create([1.0,1.0,1.0])));
+  var nLight = new Light(nextLightId++, [0.4, 0.5, -0.6], Vector.create([1.0,1.0,1.0]));
+  addOptionSelect(nLight.lightId);
+  this.lights.push(nLight);
   this.renderer.setObjects(this.objects, this.lights);
 };
 
@@ -1240,6 +1241,7 @@ var light = Vector.create([0.4, 0.5, -0.6]);
 var lights = [];
 
 var nextObjectId = 0;
+var nextLightId = 0;
 
 var MATERIAL_DIFFUSE = 0;
 var MATERIAL_MIRROR = 1;
@@ -1428,9 +1430,14 @@ window.onload = function() {
     environment = parseInt(document.getElementById('environment').value, 10);
     ui = new UI();
 	
+	currentLight = 0;
+	 
+	lights.push(new Light(nextLightId++, [0.4, 0.5, -0.6], Vector.create([1.0,1.0,0.0])));
+	lights.push(new Light(nextLightId++, [0.4, -0.5, -0.6], Vector.create([1.0,0.0,0.0])));
 	
-	lights.push(new Light(nextObjectId++, [0.4, 0.5, -0.6], Vector.create([1.0,1.0,0.0])));
-	lights.push(new Light(nextObjectId++, [0.4, -0.5, -0.6], Vector.create([1.0,0.0,0.0])));
+	addOptionSelect(lights[0].lightId);
+	addOptionSelect(lights[1].lightId);
+	updateRanges();
     ui.setObjects(makeSphereColumn(), lights);
 	
     var start = new Date();
@@ -1527,3 +1534,55 @@ document.onkeydown = function(event) {
     }
   }
 };
+
+
+function addOptionSelect(name)
+{
+	var select = document.getElementById('lightsSelect');
+	var opt = document.createElement('option');
+    opt.value = name;
+    opt.innerHTML = name;
+    select.appendChild(opt);
+}
+
+var currentLight;
+
+function selectChange()
+{
+	var select = document.getElementById('lightsSelect');
+	var value = select.value;
+	currentLight = value.substr(5,2);
+	updateRanges();
+	
+}
+
+function updateRanges()
+{
+	var redRange = document.getElementById('redRange');
+	var forRedRange = document.getElementById('forRedRange');
+	var greenRange = document.getElementById('greenRange');
+	var forGreenRange = document.getElementById('forGreenRange');
+	var blueRange = document.getElementById('blueRange');
+	var forBlueRange = document.getElementById('forBlueRange');
+	var value = (255 * lights[currentLight].color.elements[0]) + "";
+	redRange.value = value;
+	value = 255 * (lights[currentLight].color.elements[1]) + "";
+	greenRange.value = value;
+	value = 255 * (lights[currentLight].color.elements[2]) + "";
+	blueRange.value = value;
+	forRedRange.innerHTML = redRange.value;
+	forGreenRange.innerHTML = greenRange.value;
+	forBlueRange.innerHTML = blueRange.value;
+}
+
+function onChangeRanges()
+{
+	
+	var redRange = document.getElementById('redRange');
+	var greenRange = document.getElementById('greenRange');
+	var blueRange = document.getElementById('blueRange');
+	
+	lights[currentLight].color.setElements([redRange.value/255, greenRange.value/255, blueRange.value/255]);
+	updateRanges();
+	ui.setObjects(makeSphereColumn(), lights);
+}
