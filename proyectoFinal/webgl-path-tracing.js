@@ -1536,7 +1536,10 @@ document.onkeydown = function(event) {
   }
 };
 
-
+document.onwheel = function()
+{
+	
+}
 function addOptionSelect(name)
 {
 	var select = document.getElementById('lightsSelect');
@@ -1594,5 +1597,5 @@ function onChangeRanges()
 	lights[currentLight].color.setElements([redRange.value/255, greenRange.value/255, blueRange.value/255]);
 	lights[currentLight].sizeL = sizeRange.value/1;
 	updateRanges();
-	ui.setObjects(ui.objects, lights);
+	ui.setObjects(ui.renderer.objects, lights);
 }
