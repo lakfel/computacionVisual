@@ -504,6 +504,9 @@ function Sphere(center, radius, id) {
   this.radiusStr = 'sphereRadius' + id;
   this.intersectStr = 'tSphere' + id;
   this.temporaryTranslation = Vector.create([0, 0, 0]);
+  this.xRotation = 0;
+  this.yRotation = 0;
+  this.zRotation = 0;
 }
 
 Sphere.prototype.getGlobalCode = function() {
@@ -586,6 +589,9 @@ function Cylinder(center, radius, height, id) {
   this.intersectStr = 'tCylinder' + id;
   this.heightStr = 'cylinderHeight' + id;
   this.temporaryTranslation = Vector.create([0, 0, 0]);
+  this.xRotation = 0;
+  this.yRotation = 0;
+  this.zRotation = 0;
 }
 
 Cylinder.prototype.getGlobalCode = function() {
@@ -705,6 +711,9 @@ function Cube(minCorner, maxCorner, id) {
   this.maxStr = 'cubeMax' + id;
   this.intersectStr = 'tCube' + id;
   this.temporaryTranslation = Vector.create([0, 0, 0]);
+  this.xRotation = 0;
+  this.yRotation = 0;
+  this.zRotation = 0;
 }
 
 Cube.prototype.getGlobalCode = function() {
@@ -788,6 +797,9 @@ function Light(id, posicion, color) {
   this.sizeL = 2.0;
   this.colorStr = this.lightId + 'Color';
   this.color = color;
+  this.xRotation = 0;
+  this.yRotation = 0;
+  this.zRotation = 0;
 }
 
 Light.prototype.getPushingCode = function(index)
@@ -981,12 +993,19 @@ function Renderer() {
     0, 0, 1,
     1, 0, 1,
     0, 1, 1,
-    1, 1, 1
+    1, 1, 1,
+	0.5, 1.5, 0.5,
+	0.5, -0.5, 0.5,
+	0, 0, 1,
+	1, 0, 0,
+	0, 0, 0,
+	1, 0, 1
   ];
   var indices = [
     0, 1, 1, 3, 3, 2, 2, 0,
     4, 5, 5, 7, 7, 6, 6, 4,
-    0, 4, 1, 5, 2, 6, 3, 7
+    0, 4, 1, 5, 2, 6, 3, 7,
+	8, 9, 9, 10, 9, 11, 9, 12, 9, 13
   ];
 
   // create vertex buffer
@@ -1006,6 +1025,7 @@ function Renderer() {
 
   this.objects = [];
   this.selectedObject = null;
+  this.objectIsLight = false;
   this.pathTracer = new PathTracer();
 }
 
@@ -1023,10 +1043,12 @@ Renderer.prototype.setLights = function(lights) {
 
 
 
-Renderer.prototype.update = function(modelviewProjection, timeSinceStart) {
+Renderer.prototype.update = function(modelview, projection, timeSinceStart) {
+  this.modelview = modelview;
+  this.projection = projection;
+  this.modelviewProjection = this.projection.multiply(this.modelview);
   var jitter = Matrix.Translation(Vector.create([Math.random() * 2 - 1, Math.random() * 2 - 1, 0]).multiply(1 / 512)); // Hace una muy peque;a traslación no se porque
-  var inverse = jitter.multiply(modelviewProjection).inverse();
-  this.modelviewProjection = modelviewProjection;
+  var inverse = jitter.multiply(this.modelviewProjection).inverse();
   this.pathTracer.update(inverse, timeSinceStart);
 };
 //Esto dibuja las lineas
@@ -1039,12 +1061,25 @@ Renderer.prototype.render = function() {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     gl.vertexAttribPointer(this.vertexAttribute, 3, gl.FLOAT, false, 0, 0);
+	if(this.selectedObject.light)
+	{
+		var transV = this.selectedObject.light.x(-1);
+		var trans1 = Matrix.Translation(transV);
+		var trans2 = Matrix.Translation(this.selectedObject.light);
+		var rotMat = Matrix.Rotation(this.selectedObject.xRotation, Vector.create([1,0,0]));
+		rotMat = rotMat.x(Matrix.Rotation(this.selectedObject.yRotation, Vector.create([0,1,0])));
+		rotMat = rotMat.x(Matrix.Rotation(this.selectedObject.zRotation, Vector.create([0,0,1])));
+		rotMat.ensure4x4();
+		rotMat.tran
+		rotMat = this.projection.multiply(this.modelview.x(trans2.x(rotMat.x(trans1))));
+		this.modelviewProjection  = rotMat;
+	}
     setUniforms(this.lineProgram, {
       cubeMin: this.selectedObject.getMinCorner(),
       cubeMax: this.selectedObject.getMaxCorner(),
       modelviewProjection: this.modelviewProjection
     });
-    gl.drawElements(gl.LINES, 24, gl.UNSIGNED_SHORT, 0);
+    gl.drawElements(gl.LINES, 34, gl.UNSIGNED_SHORT, 0);
   }
 };
 
@@ -1076,7 +1111,8 @@ UI.prototype.update = function(timeSinceStart) {
   this.modelview = makeLookAt(eye.elements[0], eye.elements[1], eye.elements[2], 0, 0, 0, 0, 1, 0);
   this.projection = makePerspective(55, 1, 0.1, 100);
   this.modelviewProjection = this.projection.multiply(this.modelview);
-  this.renderer.update(this.modelviewProjection, timeSinceStart);
+  //this.renderer.update(this.modelviewProjection, timeSinceStart);
+	this.renderer.update(this.modelview, this.projection, timeSinceStart);
 };
 
 UI.prototype.mouseDown = function(x, y) {
@@ -1170,6 +1206,18 @@ UI.prototype.addLight = function() {
   addOptionSelect(nLight.lightId);
   this.lights.push(nLight);
   this.renderer.setObjects(this.objects, this.lights);
+};
+
+UI.prototype.deleteLight = function() 
+{
+  if(this.lights.length > 1 )
+  {
+	  this.lights.splice(currentLight, 1);
+	  currentLight = 0 ;
+	  selectChange();
+	  deleteOptionSelect(currentLight);
+	  this.renderer.setObjects(this.objects, this.lights);
+  }
 };
 
 UI.prototype.addSphere = function() {
@@ -1549,6 +1597,12 @@ function addOptionSelect(name)
     select.appendChild(opt);
 }
 
+function deleteOptionSelect(index)
+{
+	var select = document.getElementById('lightsSelect');
+	select.remove(index);
+}
+
 var currentLight;
 
 function selectChange()
@@ -1570,6 +1624,12 @@ function updateRanges()
 	var forBlueRange = document.getElementById('forBlueRange');
 	var sizeRange = document.getElementById('sizeRange');
 	var forSize = document.getElementById('forSizeRange');
+	var rotationXRange = document.getElementById('rotationXRange');
+	var forRotationXRange  = document.getElementById('forRotationXRange');
+	var rotationYRange =  document.getElementById('rotationYRange');
+	var forRotationYRange =  document.getElementById('forRotationYRange');
+	var rotationZRange =  document.getElementById('rotationZRange');
+	var forRotationZRange =  document.getElementById('forRotationZRange');
 	
 	var value = (255 * lights[currentLight].color.elements[0]) + "";
 	redRange.value = value;
@@ -1578,12 +1638,17 @@ function updateRanges()
 	value = 255 * (lights[currentLight].color.elements[2]) + "";
 	blueRange.value = value;
 	sizeRange.value = lights[currentLight].sizeL;
-	
+	rotationXRange.value = lights[currentLight].xRotation * 180 / Math.PI;
+	rotationYRange.value = lights[currentLight].yRotation * 180 / Math.PI;
+	rotationZRange.value = lights[currentLight].zRotation * 180 / Math.PI;
 	
 	forRedRange.innerHTML = redRange.value;
 	forGreenRange.innerHTML = greenRange.value;
 	forBlueRange.innerHTML = blueRange.value;
 	forSizeRange.innerHTML = sizeRange.value;
+	forRotationXRange.innerHTML = rotationXRange.value ;
+	forRotationYRange.innerHTML = rotationYRange.value ;
+	forRotationZRange.innerHTML = rotationZRange.value ;
 }
 
 function onChangeRanges()
@@ -1593,9 +1658,36 @@ function onChangeRanges()
 	var greenRange = document.getElementById('greenRange');
 	var blueRange = document.getElementById('blueRange');
 	var sizeRange = document.getElementById('sizeRange');
-	
+	var rotationXRange =  document.getElementById('rotationXRange');
+	var rotationYRange =  document.getElementById('rotationYRange');
+	var rotationZRange =  document.getElementById('rotationZRange');
+
 	lights[currentLight].color.setElements([redRange.value/255, greenRange.value/255, blueRange.value/255]);
 	lights[currentLight].sizeL = sizeRange.value/1;
+	lights[currentLight].xRotation = rotationXRange.value * Math.PI / 180;
+	lights[currentLight].yRotation = rotationYRange.value * Math.PI / 180;
+	lights[currentLight].zRotation = rotationZRange.value * Math.PI / 180;
 	updateRanges();
 	ui.setObjects(ui.renderer.objects, lights);
+	ui.selectLight();
 }
+
+function readFile(e) {
+  var archivo = e.target.files[0];
+  if (!archivo) {
+    return;
+  }
+  var lector = new FileReader();
+  lector.onload = function(e) {
+    var contenido = e.target.result;
+    mostrarContenido(contenido);
+  };
+  lector.readAsText(archivo);
+}
+
+function mostrarContenido(contenido) {
+  var elemento = document.getElementById('contenido-archivo');
+  //elemento.innerHTML = contenido;
+}
+
+document.getElementById('file-input').addEventListener('change', readFile, false);

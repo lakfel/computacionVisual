@@ -19,6 +19,55 @@ Matrix.Translation = function (v)
   throw "Invalid length for Translation";
 }
 
+function rotate (matrix,b,c,d)
+{
+	var a = [];
+	a.push(matrix.elements[0][0]);
+	a.push(matrix.elements[0][1]);
+	a.push(matrix.elements[0][2]);
+	a.push(matrix.elements[0][3]);
+	a.push(matrix.elements[1][0]);
+	a.push(matrix.elements[1][1]);
+	a.push(matrix.elements[1][2]);
+	a.push(matrix.elements[1][3]);
+	a.push(matrix.elements[2][0]);
+	a.push(matrix.elements[2][1]);
+	a.push(matrix.elements[2][2]);
+	a.push(matrix.elements[2][3]);
+	a.push(matrix.elements[3][0]);
+	a.push(matrix.elements[3][1]);
+	a.push(matrix.elements[3][2]);
+	a.push(matrix.elements[3][3]);
+	var e=c[0],g=c[1];c=c[2];
+	var f=Math.sqrt(e*e+g*g+c*c);
+	if(!f)
+		return null;
+	if(f!=1)
+	{
+		f=1/f;
+		e*=f;
+		g*=f;
+		c*=f;
+	}
+	var h=Math.sin(b), i=Math.cos(b),j=1-i;
+	b=a[0];
+	f=a[1];
+	var k=a[2],l=a[3],o=a[4],m=a[5],n=a[6],p=a[7],r=a[8],s=a[9],A=a[10],B=a[11],t=e*e*j+i,u=g*e*j+c*h,v=c*e*j-g*h,w=e*g*j-c*h,x=g*g*j+i,y=c*g*j+e*h,z=e*c*j+g*h;e=g*c*j-e*h;g=c*c*j+i;
+	if(d)
+	{
+		if(a!=d){
+			d[12]=a[12];
+			d[13]=a[13];
+			d[14]=a[14];
+			d[15]=a[15]
+		}
+	}
+	else
+		d=a;
+	d[0]=b*t+o*u+r*v;d[1]=f*t+m*u+s*v;d[2]=k*t+n*u+A*v;d[3]=l*t+p*u+B*
+v;d[4]=b*w+o*x+r*y;d[5]=f*w+m*x+s*y;d[6]=k*w+n*x+A*y;d[7]=l*w+p*x+B*y;d[8]=b*z+o*e+r*g;d[9]=f*z+m*e+s*g;d[10]=k*z+n*e+A*g;d[11]=l*z+p*e+B*g;return d
+}
+
 Matrix.prototype.flatten = function ()
 {
     var result = [];

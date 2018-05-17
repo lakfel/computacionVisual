@@ -102,9 +102,20 @@ http://www.templatemo.com/tm-501-neaty
 														</tr>
 														<tr>
 															<td>
+																<input type="file" id="file-input" onchange = "readFile()"/>
+																	<p>Archivo IES para esta luz:</p>
+																<pre id="contenido-archivo"></pre>
+															</td>
+														
+														<tr>
+														<tr>
+															<td>
 																<button onclick="javascript:ui.addLight()">Add Light</button>
 															</td>
-														</td>
+															<td>
+																<button onclick="javascript:ui.deleteLight()">Delete Light</button>
+															</td>
+														
 														<tr>
 															<td>
 																<select id = "lightsSelect" onchange = "selectChange()"></select>
@@ -115,7 +126,7 @@ http://www.templatemo.com/tm-501-neaty
 														</tr>
 														<tr>
 															<td>	
-																<input type = "range" max = "255" min = "0" id = "redRange" onchange = "onChangeRanges()">
+																<input type = "range" max = "255" min = "0" id = "redRange" oninput = "onChangeRanges()">
 															</td>
 															<td>
 																<p id = "forRedRange"></p>
@@ -123,7 +134,7 @@ http://www.templatemo.com/tm-501-neaty
 														</tr>
 														<tr>
 															<td>
-																<input type = "range" max = "255" min = "0" id = "greenRange" onchange = "onChangeRanges()">
+																<input type = "range" max = "255" min = "0" id = "greenRange" oninput = "onChangeRanges()">
 															</td>
 															<td>
 																<p id = "forGreenRange"></p>
@@ -131,7 +142,7 @@ http://www.templatemo.com/tm-501-neaty
 														</tr>
 														<tr>
 															<td>
-																<input type = "range" max = "255" min = "0" id = "blueRange" onchange = "onChangeRanges()">
+																<input type = "range" max = "255" min = "0" id = "blueRange" oninput = "onChangeRanges()">
 															</td>
 															<td>
 																<p id = "forBlueRange"></p>
@@ -143,10 +154,44 @@ http://www.templatemo.com/tm-501-neaty
 																<p>Size</p>
 															</td>
 															<td>
-																<input type = "range" min = "0" max = "4" step = "0.05" id = "sizeRange" onchange = "onChangeRanges()">
+																<input type = "range" min = "0" max = "4" step = "0.05" id = "sizeRange" oninput = "onChangeRanges()">
 															</td>
 															<td>
 																<p id = "forSizeRange"></p>
+															</td>
+														</tr>
+
+														<tr>
+															<td>
+																<p>Rotation X</p>
+															</td>
+															<td>
+																<input type = "range" min = "0" max = "360" step = "0.05" id = "rotationXRange" oninput = "onChangeRanges()">
+															</td>
+															<td>
+																<p id = "forRotationXRange"></p>
+															</td>
+														</tr>
+<tr>
+															<td>
+																<p>Rotation Y</p>
+															</td>
+															<td>
+																<input type = "range" min = "0" max = "360" step = "0.05" id = "rotationYRange" oninput = "onChangeRanges()">
+															</td>
+															<td>
+																<p id = "forRotationYRange"></p>
+															</td>
+														</tr>
+<tr>
+															<td>
+																<p>Rotation Z</p>
+															</td>
+															<td>
+																<input type = "range" min = "0" max = "360" step = "0.05" id = "rotationZRange" oninput = "onChangeRanges()">
+															</td>
+															<td>
+																<p id = "forRotationZRange"></p>
 															</td>
 														</tr>
 													</table>
@@ -223,6 +268,10 @@ http://www.templatemo.com/tm-501-neaty
 		<script>     
        
             $(document).ready(function(){
+				
+				
+
+				document.getElementById('file-input').addEventListener('change', readFile, false);
 
                 // Single page nav
                 $('.tm-main-nav').singlePageNav({
