@@ -94,7 +94,8 @@ var tracerFragmentSourceHeader =
 ' uniform sampler2D texture;' +
 ' uniform float glossiness;' +
 ' vec3 roomCubeMin = vec3(-1.0, -1.0, -1.0);' +
-' vec3 roomCubeMax = vec3(1.0, 1.0, 1.0);';
+' vec3 roomCubeMax = vec3(1.0, 1.0, 1.0);' +
+' uniform sampler2D uSampler;';
 
 // compute the near and far intersections of the cube (stored in the x and y components) using the slab method
 // no intersection means vec.x > vec.y (really tNear > tFar)
@@ -283,7 +284,7 @@ function makeShadow(objects) {
 
 function makeCalculateColor(objects) {
   return '' +
-' vec3 calculateColor(vec3 origin, vec3 ray, vec3 light, vec3 colorMask, float size) {' +
+' vec3 calculateColor(vec3 origin, vec3 ray, vec3 light, vec3 colorMask, float size, vec3 lightDirection, float ies[91]) {' +
 //'   vec3 colorMask = vec3(1.0);' +
 '   vec3 accumulatedColor = vec3(0.0);' +
   
@@ -303,7 +304,7 @@ function makeCalculateColor(objects) {
 		// info about hit
 '     	vec3 hit = origin + ray * t;' +
 '     	vec3 surfaceColor = vec3(0.75);' +
-'     	float specularHighlight = 0.0;' +
+'     	float specularHighlight = 0.1;' +
 '     	vec3 normal;' +
 
 		// calculate the normal (and change wall color)
@@ -321,17 +322,24 @@ function makeCalculateColor(objects) {
 
 		// compute diffuse lighting contribution
 '     	vec3 toLight = light - hit;' +
-'     	float diffuse = max(0.0, dot(normalize(toLight), normal)) / ((length(toLight) * length(toLight))/ size );' +
-
+'     	vec3 toLight2 =  hit - light;' +
+'     	float diffuse = max(0.0, dot(normalize(toLight), normal)) / (dot(toLight,toLight)/ size );' +
+'		float diffuse2 = 0.0;' +
+'		float cosinePat = dot(normalize(lightDirection), normalize(toLight2));' +
+'       int pattern = int(floor(acos(cosinePat)* '+ (180/Math.PI).toFixed(1) + ')); ' +
+'       if(pattern >= 0 && pattern <= 90) {'+
+'       for( int i = 0; i <= 90; i++) {if(i == pattern) {diffuse  *= (ies[i]/1287.0) ;}}} else {diffuse = 0.0;} ' +
+//'       diffuse  *= texture2D(uSampler, vec2(cosinePat, 0.0)).x;} else {diffuse = 0.0;} ' +
 		// trace a shadow ray to the light
 '     	float shadowIntensity = shadow(hit + normal * ' + epsilon + ', toLight);' +
 
 		// do light bounce
 '     	colorMask *= surfaceColor;' +
-'     	accumulatedColor += colorMask * (' + lightVal + ' * diffuse * shadowIntensity);' +
+'     	accumulatedColor += colorMask * ( diffuse * shadowIntensity);' +
 '     	accumulatedColor += colorMask * specularHighlight * shadowIntensity;' +
 
 		// calculate next origin
+'     	origin = hit;' +
 '     	origin = hit;' +
 '   	}' +
 //'   }' +
@@ -388,11 +396,24 @@ function setUniforms(program, uniforms) {
     var value = uniforms[name];
     var location = gl.getUniformLocation(program, name);
     if(location == null) continue;
-    if(value instanceof Vector) {
+	if(name.includes("texture") && name.includes("light"))
+	{
+		location = gl.getUniformLocation(program, "uSampler");
+		gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, value);
+        gl.uniform1i(location, 0);
+	}
+    else if(value instanceof Vector && value.elements.length == 3) {
       gl.uniform3fv(location, new Float32Array([value.elements[0], value.elements[1], value.elements[2]]));
     } else if(value instanceof Matrix) {
       gl.uniformMatrix4fv(location, false, new Float32Array(value.flatten()));
-    } else {
+    } 
+	else if(value instanceof Vector)
+	{
+		gl.uniform1fv(location, new Float32Array(value.elements));	
+	}
+	else
+	{
       gl.uniform1f(location, value);
     }
   }
@@ -800,17 +821,33 @@ function Light(id, posicion, color) {
   this.xRotation = 0;
   this.yRotation = 0;
   this.zRotation = 0;
+  this.iesSTR = this.lightId + 'IES';
+  this.ies = IES_1;
+  this.textureSTR = this.lightId + 'texture';
+  this.texture  = texture;
+}
+
+function darDireccion(xRot, yRot, zRot)
+{
+	var direccion = Line.create(Vector.Zero(3),Vector.j.x(-1));
+	direccion = direccion.rotate(xRot, Line.X);
+	direccion = direccion.rotate(yRot, Line.Y);
+	direccion = direccion.rotate(zRot, Line.Z);
+	return direccion;
 }
 
 Light.prototype.getPushingCode = function(index)
 {
-	return '' +
+	var tempo = darDireccion(this.xRotation, this.yRotation, this.zRotation);
+	var vecto = 'vec3  direc' + this.id + ' = vec3(' + tempo.direction.e(1).toFixed(1) + ',' + tempo.direction.e(2).toFixed(1) + ',' +tempo.direction.e(3).toFixed(1) + ');' ;
+	return '' + vecto +
 	'vec3 new' + this.lightId + ' = ' + this.lightId + ' + uniformlyRandomVector(timeSinceStart + 5.0) * ' + this.lightSize + ';' +
-	'resultLight += calculateColor(eye, initialRay, ' + this.lightId + ', vec3(' + this.color.e(1) + ', ' + this.color.e(2) + ', ' + this.color.e(3) + ' ), ' + this.sizeL.toFixed(1) + ');';
+	'resultLight += calculateColor(eye, initialRay, ' + this.lightId + ', vec3(' + this.color.e(1) + ', ' + this.color.e(2) + ', ' + this.color.e(3) + ' ), ' + this.sizeL.toFixed(1) + ', direc' + this.id + ', ' + this.iesSTR + ');';
 };
 
 Light.prototype.getGlobalCode = function() {
-  return 'uniform vec3 ' + this.lightId + ';' ;
+  return 'uniform vec3 ' + this.lightId + ';' +
+		'uniform float ' + this.iesSTR + '[91];';
 	//	'uniform vec3 ' + this.colorStr;
 };
 
@@ -830,8 +867,11 @@ Light.prototype.getNormalCalculationCode = function() {
   return '';
 };
 
-Light.prototype.setUniforms = function(renderer) {
+Light.prototype.setUniforms = function(renderer) 
+{
   renderer.uniforms[this.lightId] = this.light.add(this.temporaryTranslation);
+  renderer.uniforms[this.iesSTR] = this.ies;
+  renderer.uniforms[this.textureSTR] = this.texture;
   //renderer.uniforms[this.colorStr] = this.color;
 };
 
@@ -970,8 +1010,18 @@ PathTracer.prototype.update = function(matrix, timeSinceStart) {
   this.sampleCount++;
 };
 
+var texture;
+
 PathTracer.prototype.render = function() {
   gl.useProgram(this.renderProgram);
+	texture = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, 91, 1, 0, gl.LUMINANCE, gl.FLOAT, new Float32Array(IES_1));
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
   gl.bindTexture(gl.TEXTURE_2D, this.textures[0]);
   gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
   gl.vertexAttribPointer(this.renderVertexAttribute, 2, gl.FLOAT, false, 0, 0);
@@ -1482,10 +1532,10 @@ window.onload = function() {
 	currentLight = 0;
 	 
 	lights.push(new Light(nextLightId++, [0.4, 0.5, -0.6], Vector.create([1.0,1.0,0.0])));
-	lights.push(new Light(nextLightId++, [0.4, -0.5, -0.6], Vector.create([1.0,0.0,0.0])));
+	//lights.push(new Light(nextLightId++, [0.4, -0.5, -0.6], Vector.create([1.0,0.0,0.0])));
 	
 	addOptionSelect(lights[0].lightId);
-	addOptionSelect(lights[1].lightId);
+	//addOptionSelect(lights[1].lightId);
 	updateRanges();
     ui.setObjects(makeSphereColumn(), lights);
 	
@@ -1682,6 +1732,7 @@ function readFile(e) {
     var contenido = e.target.result;
     mostrarContenido(contenido);
   };
+  
   lector.readAsText(archivo);
 }
 
@@ -1690,4 +1741,15 @@ function mostrarContenido(contenido) {
   //elemento.innerHTML = contenido;
 }
 
-document.getElementById('file-input').addEventListener('change', readFile, false);
+var IES_1 = Vector.create([1260.3 ,1261.6 ,1266.5 ,1272.5 ,1278.0 ,1283.2 ,1287.4 ,1289.2 ,1288.5 ,1285.4 ,1279.3 ,1269.0 ,1253.7 ,1234.1 ,1210.8 ,
+1184.0 ,1153.8 ,1120.4 ,1084.7 ,1047.1 ,1008.2 ,968.50 ,928.10 ,886.36 ,841.88 ,793.00 ,740.12 ,683.48 ,622.58 ,559.76 ,
+496.00 ,431.55 ,367.45 ,303.92 ,241.43 ,185.79 ,142.77 ,109.56 ,84.471 ,65.244 ,50.388 ,39.409 ,31.270 ,25.219 ,20.650 ,
+17.104 ,14.346 ,12.217 ,10.589 ,9.3359 ,8.3377 ,7.5170 ,6.8298 ,6.2675 ,5.7851 ,5.3563 ,4.9726 ,4.6505 ,4.3469 ,4.0585 ,
+3.7912 ,3.5362 ,3.3010 ,3.0631 ,2.8734 ,2.6583 ,2.4085 ,2.1999 ,2.0327 ,1.8824 ,1.7196 ,1.5481 ,1.4002 ,1.2654 ,1.1525 ,
+1.0437 ,0.9485 ,0.8532 ,0.7617 ,0.6761 ,0.6033 ,0.5399 ,0.4743 ,0.4062 ,0.3411 ,0.2741 ,0.1996 ,0.1437 ,0.0923 ,0.0328 ,
+0.0066 ]);
+for(var i = 0; i < IES_1.lenght; i++) IES_1[i] = IES_1[i]/1289.2;
+
+
+
+//iesdocument.getElementById('file-input').addEventListener('change', readFile, false);
