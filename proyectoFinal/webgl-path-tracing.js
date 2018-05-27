@@ -62,8 +62,9 @@ var lineVertexSource =
 // fragment shader for drawing a line
 var lineFragmentSource =
 ' precision highp float;' +
+' uniform vec3 uColor;' +
 ' void main() {' +
-'   gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);' +
+'   gl_FragColor = vec4(uColor, 1.0);' +
 ' }';
 
 // constants for the shaders
@@ -1014,13 +1015,6 @@ var texture;
 
 PathTracer.prototype.render = function() {
   gl.useProgram(this.renderProgram);
-	texture = gl.createTexture();
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, 91, 1, 0, gl.LUMINANCE, gl.FLOAT, new Float32Array(IES_1));
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
   gl.bindTexture(gl.TEXTURE_2D, this.textures[0]);
   gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
@@ -1043,21 +1037,56 @@ function Renderer() {
     0, 0, 1,
     1, 0, 1,
     0, 1, 1,
-    1, 1, 1,
-	0.5, 1.5, 0.5,
+    1, 1, 1
+	/*0.5, 1.5, 0.5,
 	0.5, -0.5, 0.5,
 	0, 0, 1,
 	1, 0, 0,
 	0, 0, 0,
-	1, 0, 1
+	1, 0, 1*/
   ];
+  
+  
+  var verticesLamp = [
+    0, 0, 0,
+    1, 0, 0,
+    0.25, 1, 0.25,
+    0.75, 1, 0.25,
+    0, 0, 1,
+    1, 0, 1,
+    0.25, 1, 0.75,
+    0.75, 1, 0.75
+	/*0.5, 1.5, 0.5,
+	0.5, -0.5, 0.5,
+	0, 0, 1,
+	1, 0, 0,
+	0, 0, 0,
+	1, 0, 1*/
+  ];
+  
   var indices = [
     0, 1, 1, 3, 3, 2, 2, 0,
     4, 5, 5, 7, 7, 6, 6, 4,
-    0, 4, 1, 5, 2, 6, 3, 7,
-	8, 9, 9, 10, 9, 11, 9, 12, 9, 13
+    0, 4, 1, 5, 2, 6, 3, 7
+	//8, 9, 9, 10, 9, 11, 9, 12, 9, 13
+  ];
+  
+  var indicesLamp = [
+    0, 1, 4, 1, 4, 5,
+	0, 1, 3, 0, 3, 2,
+	1, 5, 3, 5, 3, 7,
+	5, 7, 4, 7, 4, 6,
+	4, 0, 6, 0, 6, 2,
+	2, 3, 6, 3, 6, 7
   ];
 
+  var indicesLampLines = [
+    0, 1, 1, 5, 5, 4, 4, 0,
+	4, 6, 6, 2, 2, 0, 2, 3,
+	3, 1, 3, 7, 7, 5, 7, 6
+	
+  ];
+  
   // create vertex buffer
   this.vertexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
@@ -1067,6 +1096,20 @@ function Renderer() {
   this.indexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+  
+  // create vertex buffer
+  this.vertexLampBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexLampBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verticesLamp), gl.STATIC_DRAW);
+
+  // create index buffer
+  this.indexLampBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexLampBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indicesLamp), gl.STATIC_DRAW);
+  
+  this.indexLampLineBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexLampLineBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indicesLampLines), gl.STATIC_DRAW);
 
   // create line shader
   this.lineProgram = compileShader(lineVertexSource, lineFragmentSource);
@@ -1074,6 +1117,7 @@ function Renderer() {
   gl.enableVertexAttribArray(this.vertexAttribute);
 
   this.objects = [];
+  this.lights = [];
   this.selectedObject = null;
   this.objectIsLight = false;
   this.pathTracer = new PathTracer();
@@ -1081,8 +1125,9 @@ function Renderer() {
 
 Renderer.prototype.setObjects = function(objects, lights) {
   this.objects = objects;
+  this.lights = lights;
   this.selectedObject = null;
-  this.pathTracer.setObjects(objects);
+  this.pathTracer.setObjects(objects, this.lights);
 };
 
 Renderer.prototype.setLights = function(lights) {
@@ -1090,7 +1135,6 @@ Renderer.prototype.setLights = function(lights) {
   this.selectedlight = null;
   this.pathTracer.setLights(lights);
 };
-
 
 
 Renderer.prototype.update = function(modelview, projection, timeSinceStart) {
@@ -1103,15 +1147,47 @@ Renderer.prototype.update = function(modelview, projection, timeSinceStart) {
 };
 //Esto dibuja las lineas
 Renderer.prototype.render = function() {
-  this.pathTracer.render();
-
+	this.pathTracer.render();
+  	gl.useProgram(this.lineProgram);
+	gl.bindTexture(gl.TEXTURE_2D, null);
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexLampBuffer);
+	gl.vertexAttribPointer(this.vertexLampBuffer, 3, gl.FLOAT, false, 0, 0);
+  var location = gl.getUniformLocation(this.lineProgram, "uColor");
+  for(var i = 0; i < this.lights.length; i++)
+  {
+	var transV = this.lights[i].light.x(-1);
+	var trans1 = Matrix.Translation(transV);
+	var trans2 = Matrix.Translation(this.lights[i].light);
+	var rotMat = Matrix.Rotation(this.lights[i].xRotation, Vector.create([1,0,0]));
+	rotMat = rotMat.x(Matrix.Rotation(this.lights[i].yRotation, Vector.create([0,1,0])));
+	rotMat = rotMat.x(Matrix.Rotation(this.lights[i].zRotation, Vector.create([0,0,1])));
+	rotMat.ensure4x4();
+	rotMat.tran
+	rotMat = this.projection.multiply(this.modelview.x(trans2.x(rotMat.x(trans1))));
+	//this.modelviewProjection  = rotMat;
+	setUniforms(this.lineProgram, {
+	  cubeMin: this.lights[i].getMinCorner(),
+	  cubeMax: this.lights[i].getMaxCorner(),
+	  modelviewProjection: rotMat
+	});
+	
+	gl.uniform3fv(location, new Float32Array([0.85,0.85,0.85]));
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexLampBuffer);
+	gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
+	
+	gl.uniform3fv(location, new Float32Array(this.lights[i].color.elements));
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexLampLineBuffer);
+	gl.drawElements(gl.LINES, 24, gl.UNSIGNED_SHORT, 0);
+  }
+  gl.uniform3fv(location, new Float32Array([0.0,0.0,0.0]));
+  
   if(this.selectedObject != null) {
     gl.useProgram(this.lineProgram);
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     gl.vertexAttribPointer(this.vertexAttribute, 3, gl.FLOAT, false, 0, 0);
-	if(this.selectedObject.light)
+	if(this.selectedObject.light && false)
 	{
 		var transV = this.selectedObject.light.x(-1);
 		var trans1 = Matrix.Translation(transV);
@@ -1129,7 +1205,7 @@ Renderer.prototype.render = function() {
       cubeMax: this.selectedObject.getMaxCorner(),
       modelviewProjection: this.modelviewProjection
     });
-    gl.drawElements(gl.LINES, 34, gl.UNSIGNED_SHORT, 0);
+    gl.drawElements(gl.LINES, 24, gl.UNSIGNED_SHORT, 0);
   }
 };
 
@@ -1147,7 +1223,7 @@ UI.prototype.setObjects = function(objects, lights) {
   this.objects = objects;
   this.lights = lights;
   //this.objects.splice(0, 0, new Light());
-  this.renderer.setObjects(this.objects, lights);
+  this.renderer.setObjects(this.objects, this.lights);
 };
 
 UI.prototype.setLights = function(lights) {
@@ -1537,7 +1613,7 @@ window.onload = function() {
 	addOptionSelect(lights[0].lightId);
 	//addOptionSelect(lights[1].lightId);
 	updateRanges();
-    ui.setObjects(makeSphereColumn(), lights);
+    ui.setObjects(makeTableAndChair(), lights);
 	
     var start = new Date();
     error.style.zIndex = -1;
