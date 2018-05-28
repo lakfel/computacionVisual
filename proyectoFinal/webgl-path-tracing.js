@@ -327,12 +327,24 @@ function makeCalculateColor(objects) {
 '     	float diffuse = max(0.0, dot(normalize(toLight), normal)) / (dot(toLight,toLight)/ size );' +
 '		float diffuse2 = 0.0;' +
 '		float cosinePat = dot(normalize(lightDirection), normalize(toLight2));' +
-'       int pattern = int(floor(acos(cosinePat)* '+ (180/Math.PI).toFixed(1) + ')); ' +
+'		float anglePat = acos(cosinePat)* '+ (180/Math.PI).toFixed(1) + ';' +  
+'       float fpattern = floor(acos(cosinePat)* '+ (180/Math.PI).toFixed(1) + '); ' +
+'       int pattern = int(fpattern); ' +
 '       if(pattern >= 0 && pattern <= 90) {'+
-'       for( int i = 0; i <= 90; i++) {if(i == pattern) {diffuse  *= (ies[i]/1287.0) ;}}} else {diffuse = 0.0;} ' +
-//'       diffuse  *= texture2D(uSampler, vec2(cosinePat, 0.0)).x;} else {diffuse = 0.0;} ' +
+'       for( int i = 0; i <= 90; i++) {if(i == pattern) {diffuse  *= mix(ies[i],ies[i+1], anglePat - fpattern ) ;}}} else {diffuse = 0.0;} ' +
+//'       diffuse  *= texture2D(uSampler, vec2(anglePat, 0.0)).r;} else {diffuse = 0.0;} ' +
 		// trace a shadow ray to the light
 '     	float shadowIntensity = shadow(hit + normal * ' + epsilon + ', toLight);' +
+/*'     	shadowIntensity += shadow(hit + vec3(0.008,0.0,0.0) + normal * ' + epsilon + ', toLight);' +
+'     	shadowIntensity += shadow(hit + vec3(0.0,0.008,0.0) + normal * ' + epsilon + ', toLight);' +
+'     	shadowIntensity += shadow(hit + vec3(0.0,0.0,0.008) + normal * ' + epsilon + ', toLight);' +
+
+'     	shadowIntensity += shadow(hit + vec3(-0.008,0.0,0.0) + normal * ' + epsilon + ', toLight);' +
+'     	shadowIntensity += shadow(hit + vec3(0.0,-0.008,0.0) + normal * ' + epsilon + ', toLight);' +
+'     	shadowIntensity += shadow(hit + vec3(0.0,0.0,-0.008) + normal * ' + epsilon + ', toLight);' +
+
+'     	shadowIntensity /= 7.0;' +
+*/
 
 		// do light bounce
 '     	colorMask *= surfaceColor;' +
@@ -393,6 +405,7 @@ function getEyeRay(matrix, x, y) {
 }
 
 function setUniforms(program, uniforms) {
+
   for(var name in uniforms) {
     var value = uniforms[name];
     var location = gl.getUniformLocation(program, name);
@@ -401,7 +414,7 @@ function setUniforms(program, uniforms) {
 	{
 		location = gl.getUniformLocation(program, "uSampler");
 		gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, value);
+        gl.bindTexture(gl.TEXTURE_2D, textureLight1);
         gl.uniform1i(location, 0);
 	}
     else if(value instanceof Vector && value.elements.length == 3) {
@@ -849,7 +862,7 @@ Light.prototype.getPushingCode = function(index)
 Light.prototype.getGlobalCode = function() {
   return 'uniform vec3 ' + this.lightId + ';' +
 		'uniform float ' + this.iesSTR + '[91];';
-	//	'uniform vec3 ' + this.colorStr;
+		//'uniform sampler ' + this.colorStr;
 };
 
 Light.prototype.getIntersectCode = function() {
@@ -931,6 +944,19 @@ function PathTracer() {
 
   // create textures
   var type = gl.getExtension('OES_texture_float') ? gl.FLOAT : gl.UNSIGNED_BYTE;
+
+ textureLight1 = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, textureLight1);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, 91, 1, 0,
+              gl.LUMINANCE, gl.FLOAT, new Float32Array(IES_1.elements));
+ 
+	// set the filtering so we don't need mips and it's not filtered
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+
   this.textures = [];
   //2 texturas pq? no se
   for(var i = 0; i < 2; i++) {
@@ -1152,7 +1178,7 @@ Renderer.prototype.render = function() {
 	gl.bindTexture(gl.TEXTURE_2D, null);
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexLampBuffer);
 	gl.vertexAttribPointer(this.vertexLampBuffer, 3, gl.FLOAT, false, 0, 0);
-  var location = gl.getUniformLocation(this.lineProgram, "uColor");
+    var location = gl.getUniformLocation(this.lineProgram, "uColor");
   for(var i = 0; i < this.lights.length; i++)
   {
 	var transV = this.lights[i].light.x(-1);
@@ -1328,7 +1354,7 @@ UI.prototype.selectLight = function() {
 };
 
 UI.prototype.addLight = function() {
-  var nLight = new Light(nextLightId++, [0.4, 0.5, -0.6], Vector.create([1.0,1.0,1.0]));
+  var nLight = new Light(nextLightId++, [0.0, 0.2, -0.6], Vector.create([1.0,1.0,1.0]));
   addOptionSelect(nLight.lightId);
   this.lights.push(nLight);
   this.renderer.setObjects(this.objects, this.lights);
@@ -1585,15 +1611,39 @@ function makeRecursiveSpheres() {
   return objects;
 }
 
+var textureLight1;
+
 window.onload = function() {
   gl = null;
   error = document.getElementById('error');
   canvas = document.getElementById('canvas');
+
+  
+
   try { gl = canvas.getContext('experimental-webgl'); } catch(e) {}
 
   if(gl) {
     error.innerHTML = 'Loading...';
+var IES = Vector.create([1260.3 ,1261.6 ,1266.5 ,1272.5 ,1278.0 ,1283.2 ,1287.4 ,1289.2 ,1288.5 ,1285.4 ,1279.3 ,1269.0 ,1253.7 ,1234.1 ,1210.8 ,
+1184.0 ,1153.8 ,1120.4 ,1084.7 ,1047.1 ,1008.2 ,968.50 ,928.10 ,886.36 ,841.88 ,793.00 ,740.12 ,683.48 ,622.58 ,559.76 ,
+496.00 ,431.55 ,367.45 ,303.92 ,241.43 ,185.79 ,142.77 ,109.56 ,84.471 ,65.244 ,50.388 ,39.409 ,31.270 ,25.219 ,20.650 ,
+17.104 ,14.346 ,12.217 ,10.589 ,9.3359 ,8.3377 ,7.5170 ,6.8298 ,6.2675 ,5.7851 ,5.3563 ,4.9726 ,4.6505 ,4.3469 ,4.0585 ,
+3.7912 ,3.5362 ,3.3010 ,3.0631 ,2.8734 ,2.6583 ,2.4085 ,2.1999 ,2.0327 ,1.8824 ,1.7196 ,1.5481 ,1.4002 ,1.2654 ,1.1525 ,
+1.0437 ,0.9485 ,0.8532 ,0.7617 ,0.6761 ,0.6033 ,0.5399 ,0.4743 ,0.4062 ,0.3411 ,0.2741 ,0.1996 ,0.1437 ,0.0923 ,0.0328 ,
+0.0066 ]);
+for(var i = 0; i < IES.elements.length; i++) IES.elements[i] = IES.elements[i]/1289.2;
 
+	textureLight1 = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, textureLight1);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, 91, 1, 0,
+              gl.LUMINANCE, gl.FLOAT, new Float32Array(IES.elements));
+ 
+	// set the filtering so we don't need mips and it's not filtered
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	for(var i = 0; i < IES_1.elements.length; i++) IES_1.elements[i] = IES_1.elements[i]/1289.2;
     // keep track of whether an <input> is focused or not (will be no only if inputFocusCount == 0)
     var inputs = document.getElementsByTagName('input');
     for(var i= 0; i < inputs.length; i++) {
@@ -1607,13 +1657,14 @@ window.onload = function() {
 	
 	currentLight = 0;
 	 
-	lights.push(new Light(nextLightId++, [0.4, 0.5, -0.6], Vector.create([1.0,1.0,0.0])));
+	lights.push(new Light(nextLightId++, [0.0, -0.35, 0.95], Vector.create([1.0,1.0,0.0])));
 	//lights.push(new Light(nextLightId++, [0.4, -0.5, -0.6], Vector.create([1.0,0.0,0.0])));
 	
 	addOptionSelect(lights[0].lightId);
+	lights[0].xRotation = Math.PI/2;
 	//addOptionSelect(lights[1].lightId);
 	updateRanges();
-    ui.setObjects(makeTableAndChair(), lights);
+    ui.setObjects(makeStacks(), lights);
 	
     var start = new Date();
     error.style.zIndex = -1;
@@ -1816,15 +1867,15 @@ function mostrarContenido(contenido) {
   var elemento = document.getElementById('contenido-archivo');
   //elemento.innerHTML = contenido;
 }
-
 var IES_1 = Vector.create([1260.3 ,1261.6 ,1266.5 ,1272.5 ,1278.0 ,1283.2 ,1287.4 ,1289.2 ,1288.5 ,1285.4 ,1279.3 ,1269.0 ,1253.7 ,1234.1 ,1210.8 ,
+
 1184.0 ,1153.8 ,1120.4 ,1084.7 ,1047.1 ,1008.2 ,968.50 ,928.10 ,886.36 ,841.88 ,793.00 ,740.12 ,683.48 ,622.58 ,559.76 ,
 496.00 ,431.55 ,367.45 ,303.92 ,241.43 ,185.79 ,142.77 ,109.56 ,84.471 ,65.244 ,50.388 ,39.409 ,31.270 ,25.219 ,20.650 ,
 17.104 ,14.346 ,12.217 ,10.589 ,9.3359 ,8.3377 ,7.5170 ,6.8298 ,6.2675 ,5.7851 ,5.3563 ,4.9726 ,4.6505 ,4.3469 ,4.0585 ,
 3.7912 ,3.5362 ,3.3010 ,3.0631 ,2.8734 ,2.6583 ,2.4085 ,2.1999 ,2.0327 ,1.8824 ,1.7196 ,1.5481 ,1.4002 ,1.2654 ,1.1525 ,
 1.0437 ,0.9485 ,0.8532 ,0.7617 ,0.6761 ,0.6033 ,0.5399 ,0.4743 ,0.4062 ,0.3411 ,0.2741 ,0.1996 ,0.1437 ,0.0923 ,0.0328 ,
 0.0066 ]);
-for(var i = 0; i < IES_1.lenght; i++) IES_1[i] = IES_1[i]/1289.2;
+
 
 
 

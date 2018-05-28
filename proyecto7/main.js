@@ -118,7 +118,7 @@
 		canTexture.image.onload = function () {
 			handleLoadedTexture(canTexture)
 		}
-		canTexture.image.src = prueba;
+		canTexture.image.src = temp[0];
 		canTextures.push(canTexture);
 		
 		var canTexture2;
