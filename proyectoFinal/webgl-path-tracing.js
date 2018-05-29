@@ -372,7 +372,7 @@ function makeMain(lights) {
 //'   vec3 newLight = light + uniformlyRandomVector(timeSinceStart + 5.0) * ' + lightSize + ';' +
 	str + 
 '	resultLight = resultLight/ ' + lights.length.toFixed(2) + ';' +
-'   vec3 texture = texture2D(texture, gl_FragCoord.xy / 512.0).rgb;' +
+'   vec3 texture = texture2D(texture, gl_FragCoord.xy / 1024.0).rgb;' +
 '   gl_FragColor = vec4(mix(resultLight, texture, textureWeight), 1.0);' +
 ' }';
 }
@@ -964,7 +964,7 @@ function PathTracer() {
     gl.bindTexture(gl.TEXTURE_2D, this.textures[i]);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 512, 512, 0, gl.RGB, type, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1024, 1024, 0, gl.RGB, type, null);
   }
   gl.bindTexture(gl.TEXTURE_2D, null);
 
@@ -1167,7 +1167,7 @@ Renderer.prototype.update = function(modelview, projection, timeSinceStart) {
   this.modelview = modelview;
   this.projection = projection;
   this.modelviewProjection = this.projection.multiply(this.modelview);
-  var jitter = Matrix.Translation(Vector.create([Math.random() * 2 - 1, Math.random() * 2 - 1, 0]).multiply(1 / 512)); // Hace una muy peque;a traslación no se porque
+  var jitter = Matrix.Translation(Vector.create([Math.random() * 2 - 1, Math.random() * 2 - 1, 0]).multiply(1 / 1024)); // Hace una muy peque;a traslación no se porque
   var inverse = jitter.multiply(this.modelviewProjection).inverse();
   this.pathTracer.update(inverse, timeSinceStart);
 };
@@ -1270,7 +1270,7 @@ UI.prototype.update = function(timeSinceStart) {
 UI.prototype.mouseDown = function(x, y) {
   var t;
   var origin = eye;
-  var ray = getEyeRay(this.modelviewProjection.inverse(), (x / 512) * 2 - 1, 1 - (y / 512) * 2);
+  var ray = getEyeRay(this.modelviewProjection.inverse(), (x / 1024) * 2 - 1, 1 - (y / 1024) * 2);
 
   // test the selection box first
   if(this.renderer.selectedObject != null) {
@@ -1320,7 +1320,7 @@ UI.prototype.mouseDown = function(x, y) {
 UI.prototype.mouseMove = function(x, y) {
   if(this.moving) {
     var origin = eye;
-    var ray = getEyeRay(this.modelviewProjection.inverse(), (x / 512) * 2 - 1, 1 - (y / 512) * 2);
+    var ray = getEyeRay(this.modelviewProjection.inverse(), (x / 1024) * 2 - 1, 1 - (y / 1024) * 2);
 
     var t = (this.movementDistance - this.movementNormal.dot(origin)) / this.movementNormal.dot(ray);
     var hit = origin.add(ray.multiply(t));
@@ -1334,7 +1334,7 @@ UI.prototype.mouseMove = function(x, y) {
 UI.prototype.mouseUp = function(x, y) {
   if(this.moving) {
     var origin = eye;
-    var ray = getEyeRay(this.modelviewProjection.inverse(), (x / 512) * 2 - 1, 1 - (y / 512) * 2);
+    var ray = getEyeRay(this.modelviewProjection.inverse(), (x / 1024) * 2 - 1, 1 - (y / 1024) * 2);
 
     var t = (this.movementDistance - this.movementNormal.dot(origin)) / this.movementNormal.dot(ray);
     var hit = origin.add(ray.multiply(t));
@@ -1714,7 +1714,7 @@ document.onmousedown = function(event) {
   oldX = mouse.x;
   oldY = mouse.y;
 
-  if(mouse.x >= 0 && mouse.x < 512 && mouse.y >= 0 && mouse.y < 512) {
+  if(mouse.x >= 0 && mouse.x < 1024 && mouse.y >= 0 && mouse.y < 1024) {
     mouseDown = !ui.mouseDown(mouse.x, mouse.y);
 
     // disable selection because dragging is used for rotating the camera and moving objects
