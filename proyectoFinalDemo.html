@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Proyecto 10</title>
+<!--
+Neaty HTML Template
+http://www.templatemo.com/tm-501-neaty
+-->
+    <!-- load stylesheets -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400">  <!-- Google web font "Open Sans" -->
+	<script type="text/javascript" src="proyectoFinal/sylvester.src.js"></script>
+	<script type="text/javascript" src="proyectoFinal/glUtils.js"></script>
+	<script type="text/javascript" src="proyectoFinal/webgl-path-tracing.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">                                      <!-- Bootstrap style -->
+    <link rel="stylesheet" href="css/magnific-popup.css">                                <!-- Magnific pop up style, http://dimsemenov.com/plugins/magnific-popup/ -->
+    <link rel="stylesheet" href="css/templatemo-style.css">                                   <!-- Templatemo style -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+          <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+          <![endif]-->
+</head>
+    <body >        
+        <div class="container">
+            <div class="row">
+                <div class="tm-left-right-container">
+                    <!-- Left column: logo and menu -->
+                    <div class="tm-blue-bg tm-left-column">                        
+                        <div class="tm-logo-div text-xs-center">
+							</br>
+                             <a href = "index.html"><img  id = "FotoPrincipal" src="img/foto3.jpg" alt="Johann Felipe González Ávila"  data-rotate="90"></a>
+							</br>
+							</br>
+                            <h1 class="tm-site-name">Johann Felipe González Ávila</h1>
+							</br>
+							<h4>Computación Visual Interactiva.</h4>
+                        </div>
+                        <div class="tm-logo-div text-xs-center">
+                           </br>
+                                <a href = "index.html"><h3>Home Proyectos</h3></a/>
+                         </div>                                          
+                    </div> <!-- Left column: logo and menu -->
+                    
+                    <!-- Right column: content -->
+                    <div class="tm-right-column">
+						<!--audio src="proyecto7/joga.mp3" controls autoplay loop>	
+							<p>Tu navegador no implementa el elemento audio.</p>
+						</audio-->
+                        <!--figure>
+                            <img src="img/neaty-01.jpg" alt="Header image" class="img-fluid">    
+                        </figure-->
+
+                        <div class="tm-content-div">
+                            <!-- Welcome section -->
+                            <section id="Presentacion" class="tm-section">
+                                <header>
+                                    <h1 class="tm-blue-text tm-welcome-title tm-margin-b-45">Proyecto Final</h1>
+                                </header>
+								
+								
+								<div id="main">
+								
+									<table>
+										<tr>
+											<td>
+												<canvas id="canvas" width="512" height="512"></canvas>
+												<div id="error"><noscript>Please enable JavaScript.</noscript></div>
+											</td>
+											<td>
+												<div>
+													<table>
+														<tr>
+															<td>
+																<>Lights</p>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<input type="file" id="file-input" onchange = "readFile()"/>
+																	
+															
+															</td>
+														
+														<tr>
+														<tr>
+															<td>
+																<button onclick="javascript:ui.addLight()">Add Light</button>
+															</td>
+															<td>
+																<button onclick="javascript:ui.deleteLight()">Delete Light</button>
+															</td>
+														
+														<tr>
+															
+															<td>
+																<select id = "lightsSelect" onchange = "javascript:selectChange()"></select>
+															</td>
+															<td>
+																<button onclick="javascript:ui.selectLight()">Select Light</button>
+															</td>
+														</tr>
+														<tr>
+															
+															<td>
+																<select id = "iesSelect" onchange = "javascript:selectChange()">
+																	<option value = "S1">IES 1</option>
+																	<option value = "S2">IES 2</option>
+																	<option value = "S3">IES 3</option>
+																</select>
+															</td>
+														</tr>
+														<tr>
+															<td style = "width : 10%">
+																<p>Red</p>
+															</td>
+															<td style = "width : 80%">
+																<input type = "range" max = "255" min = "0" id = "redRange" oninput = "onChangeRanges()">
+															</td>
+															<td style = "width : 10%">
+																<p id = "forRedRange"></p>
+															</td>
+														</tr>
+														<tr>
+															<td style = "width : 10%">
+																<p>Greeb</p>
+															</td>
+															<td style = "width : 80%">
+																<input type = "range" max = "255" min = "0" id = "greenRange" oninput = "onChangeRanges()">
+															</td>
+															<td style = "width : 10%">
+																<p id = "forGreenRange"></p>
+															</td>
+														</tr>
+														<tr>
+															<td style = "width : 10%">
+															<p>Blue</p>
+															</td>
+															<td style = "width : 80%">
+																<input type = "range" max = "255" min = "0" id = "blueRange" oninput = "onChangeRanges()">
+															</td>
+															<td style = "width : 10%">
+																<p id = "forBlueRange"></p>
+															</td>
+														</tr>
+														
+														<tr>
+															<td>
+																<p>Size</p>
+															</td>
+															<td>
+																<input type = "range" min = "0" max = "4" step = "0.05" id = "sizeRange" oninput = "onChangeRanges()">
+															</td>
+															<td>
+																<p id = "forSizeRange"></p>
+															</td>
+														</tr>
+
+														<tr>
+															<td>
+																<p>Rotation X</p>
+															</td>
+															<td>
+																<input type = "range" min = "-180" max = "180" step = "0.05" id = "rotationXRange" oninput = "onChangeRanges()">
+															</td>
+															<td>
+																<p id = "forRotationXRange"></p>
+															</td>
+														</tr>
+<tr>
+															<td>
+																<p>Rotation Y</p>
+															</td>
+															<td>
+																<input type = "range" min = "-180" max = "180" step = "0.05" id = "rotationYRange" oninput = "onChangeRanges()">
+															</td>
+															<td>
+																<p id = "forRotationYRange"></p>
+															</td>
+														</tr>
+<tr>
+															<td>
+																<p>Rotation Z</p>
+															</td>
+															<td>
+																<input type = "range" min = "-180" max = "180" step = "0.05" id = "rotationZRange" oninput = "onChangeRanges()">
+															</td>
+															<td>
+																<p id = "forRotationZRange"></p>
+															</td>
+														</tr>
+													</table>
+												</div>
+											</td>
+										</tr>
+									</table>
+									<p>
+									  <button onclick="javascript:ui.addSphere()">Add Sphere</button>
+									  <button onclick="javascript:ui.addCube()">Add Cube</button>
+									  <button onclick="javascript:ui.addCylinder()">Add Cylinder</button>
+									</p>
+									
+									
+
+									<p>
+									  <b>Material:</b>
+									  <select id="material">
+										<option value="0" selected>Diffuse</option>
+										<option value="1">Mirror</option>
+										<option value="2">Glossy</option>
+									  </select>
+									  <span id="glossiness-factor">
+										<br>with glossiness factor: 0 &lt; <input id="glossiness" value="0.6"> &lt; 1
+									  </span>
+									  <br>
+
+									  <b>Environment:</b>
+									  <select id="environment">
+										<option value="0" selected>Cornell Box - Yellow and Blue</option>
+										<option value="1">Cornell Box - Red and Green</option>
+									  </select>
+									</p>
+
+									<p>
+									  <b>Load preset scene:</b>
+									  <br><button onclick="javascript:ui.setObjects(makeSphereColumn(),lights)">Sphere Column</button>
+									  <br><button onclick="javascript:ui.setObjects(makeSpherePyramid(),lights)">Sphere Pyramid</button>
+									  <br><button onclick="javascript:ui.setObjects(makeSphereAndCube(),lights)">Sphere and Cube</button>
+									  <br><button onclick="javascript:ui.setObjects(makeCubeAndSpheres(),lights)">Cube and Spheres</button>
+									  <br><button onclick="javascript:ui.setObjects(makeSphereCylinderColumn(),lights)">Hello world</button>
+									  <br><button onclick="javascript:ui.setObjects(makeTableAndChair(),lights)">Table and Chair</button>
+									  <br><button onclick="javascript:ui.setObjects(makeStacks(),lights)">Stacks</button>
+									</p>
+									
+									<h3> Luminotecnia</h3>
+								
+									<p>Empiezo a trabajar en una librería que permita introducir principios físicos de luminotecnia para darle realismo a la aplicación. En específico se quiere tener en cuenta los siguientes aspectos:</p>
+									<ul>
+										<li><strong>Flujo luminoso: </strong>Flujo luminoso es la cantidad total de iluminación emitida por una fuente de luz en una unidad de tiempo, la unidad de medida es el lumen (lm). Se utiliza para indicar la cantidad de luz manifestada en una superficie o para señalar la reproducción luminosa de una fuente. Cuando la fuente de luz es una lámpara el flujo luminoso no se reparte de manera uniforme. El flujo luminoso Փ es un índice representativo de la potencia luminosa de una fuente de luz. Փ = lumen (lm)..</li>
+										<li><strong>Eficacia luminosa: </strong>La eficacia luminosa describe el rendimiento de una lámpara. Se expresa mediante la relación del flujo luminoso entregado, en lumen y la potencia consumida, en vatios. El valor teórico máximo alcanzable con una conversión total de la energía a 555 nm sería 683 lm/W. Las eficacias luminosas realmente alcanzables varían en función del manantial de luz, pero quedan siempre por debajo de este valor ideal.</li>
+										<li><strong>Intensidad luminosa.</strong>La intensidad luminosa de una fuente de luz en una dirección dada, es la relación que existe entre el flujo luminoso contenido en un ángulo sólido cualquiera, cuyo eje coincida con la dirección considerada y el valor de dicho ángulo sólido expresado en estereoradianes. Su unidad es la candela (cd).</li>
+										<li><strong>Iluminancia:  </strong>La iluminancia es un índice representativo de la densidad del flujo luminoso sobre una superficie. Se define como la relación entre el flujo luminoso que incide sobre una superficie y el tamaño de esta superficie. A su vez la iluminancia no se encuentra vinculada a una superficie real, puede ser determinada en cualquier lugar del espacio. La iluminancia se puede deducir de la intensidad luminosa. Al mismo tiempo disminuye la iluminancia con el cuadrado de la distancia de la fuente de luz (ley de la inversa del cuadrado de la distancia). Su unidad es el lux..</li>
+										<li><strong>Luminancia:</strong>Mientras que la iluminancia nos describe la potencia luminosa que incide en una superficie, vemos que la luminancia nos describe la luz que procede de esa misma superficie. A su vez dicha luz puede ser procedente de la superficie misma (p.ej. en el caso de la luminancia de lámparas y luminarias). También vemos que la luminancia se encuentra definida como la relación entre la intensidad luminosa y la superficie proyectada sobre el plano perpendicularmente a la dirección de irradiación. Pero es posible que la luz sea reflejada o transmitida por la superficie. En el caso de materiales que reflejan en forma dispersa (mateados) y que transmiten en forma dispersa (turbios), es posible averiguar la luminancia a base de la iluminancia y el grado de reflexión (reflectancia) o transmisión (transmitancia). La luminosidad está en relación con la luminancia; no obstante, la impresión verdadera de luminosidad está bajo la influencia del estado de adaptación del ojo, del contraste circundante y del contenido de información de la superficie a la vista. La luminancia L de una superficie luminiscente resulta de la relación entre la intensidad luminosa I y su superficie proyectada Ap.</li>
+									</ul>
+									
+									
+									
+								  </div>
+								
+                            </section>   
+                        </div>  
+                        
+                    </div> <!-- Right column: content -->
+                </div>
+            </div> <!-- row -->
+        </div> <!-- container -->
+                
+        <!-- load JS files -->
+        <script src="js/jquery-1.11.3.min.js"></script>             <!-- jQuery (https://jquery.com/download/) -->
+        <script src="js/jquery.magnific-popup.min.js"></script>     <!-- Magnific pop-up (http://dimsemenov.com/plugins/magnific-popup/) -->
+        <script src="js/jquery.singlePageNav.min.js"></script>      <!-- Single Page Nav (https://github.com/ChrisWojcik/single-page-nav) -->
+        
+		<script>     
+       
+            $(document).ready(function(){
+				
+				
+
+				document.getElementById('file-input').addEventListener('change', readFile, false);
+
+                // Single page nav
+                $('.tm-main-nav').singlePageNav({
+                    'currentClass' : "active",
+                    offset : 20
+                });
+
+                // Magnific pop up
+                $('.tm-gallery-1').magnificPopup({
+                  delegate: 'a', // child items selector, by clicking on it popup will open
+                  type: 'image',
+                  gallery: {enabled:true}
+                  // other options
+                }); 
+
+                $('.tm-gallery-2').magnificPopup({
+                  delegate: 'a', // child items selector, by clicking on it popup will open
+                  type: 'image',
+                  gallery: {enabled:true}
+                  // other options
+                }); 
+
+                $('.tm-gallery-3').magnificPopup({
+                  delegate: 'a', // child items selector, by clicking on it popup will open
+                  type: 'image',
+                  gallery: {enabled:true}
+                  // other options
+                }); 
+
+                $('.tm-current-year').text(new Date().getFullYear());                
+            });
+        </script>             
+</body>
+</html>

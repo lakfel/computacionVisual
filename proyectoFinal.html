@@ -11,10 +11,7 @@ Neaty HTML Template
 http://www.templatemo.com/tm-501-neaty
 -->
     <!-- load stylesheets -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400">  <!-- Google web font "Open Sans" -->
-	<script type="text/javascript" src="proyectoFinal/sylvester.src.js"></script>
-	<script type="text/javascript" src="proyectoFinal/glUtils.js"></script>
-	<script type="text/javascript" src="proyectoFinal/webgl-path-tracing.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400">
     <link rel="stylesheet" href="css/bootstrap.min.css">                                      <!-- Bootstrap style -->
     <link rel="stylesheet" href="css/magnific-popup.css">                                <!-- Magnific pop up style, http://dimsemenov.com/plugins/magnific-popup/ -->
     <link rel="stylesheet" href="css/templatemo-style.css">                                   <!-- Templatemo style -->
@@ -41,17 +38,10 @@ http://www.templatemo.com/tm-501-neaty
 							</br>
 							<h4>Computación Visual Interactiva.</h4>
                         </div>
-                        <nav class="tm-main-nav">
-                            <ul class="tm-main-nav-ul">
-                                <li class="tm-nav-item">
-                                    <a href="index.html" class="tm-nav-item-link">¿Qué es esto?</a>
-                                </li>
-                                <li class="tm-nav-item">
-                                    <a href="index.html" class="tm-nav-item-link">Proyectos</a>
-                                </li>
-                                
-                            </ul>
-                        </nav>                                         
+                        <div class="tm-logo-div text-xs-center">
+                           </br>
+                                <a href = "index.html"><h3>Home Proyectos</h3></a/>
+                         </div>                                          
                     </div> <!-- Left column: logo and menu -->
                     
                     <!-- Right column: content -->
@@ -223,187 +213,15 @@ http://www.templatemo.com/tm-501-neaty
 										<li>Carga de modelos para otros espacios.</li>
 										<li>Manejo de la sombra.</li>
 									</ul>
-									<table>
-										<tr>
-											<td>
-												<canvas id="canvas" width="512" height="512"></canvas>
-												<div id="error"><noscript>Please enable JavaScript.</noscript></div>
-											</td>
-											<td>
-												<div>
-													<table>
-														<tr>
-															<td>
-																<>Lights</p>
-															</td>
-														</tr>
-														<tr>
-															<td>
-																<input type="file" id="file-input" onchange = "readFile()"/>
-																	
-															
-															</td>
-														
-														<tr>
-														<tr>
-															<td>
-																<button onclick="javascript:ui.addLight()">Add Light</button>
-															</td>
-															<td>
-																<button onclick="javascript:ui.deleteLight()">Delete Light</button>
-															</td>
-														
-														<tr>
-															
-															<td>
-																<select id = "lightsSelect" onchange = "javascript:selectChange()"></select>
-															</td>
-															<td>
-																<button onclick="javascript:ui.selectLight()">Select Light</button>
-															</td>
-														</tr>
-														<tr>
-															
-															<td>
-																<select id = "iesSelect" onchange = "javascript:selectChange()">
-																	<option value = "S1">IES 1</option>
-																	<option value = "S2">IES 2</option>
-																	<option value = "S3">IES 3</option>
-																</select>
-															</td>
-														</tr>
-														<tr>
-															<td style = "width : 10%">
-																<p>Red</p>
-															</td>
-															<td style = "width : 80%">
-																<input type = "range" max = "255" min = "0" id = "redRange" oninput = "onChangeRanges()">
-															</td>
-															<td style = "width : 10%">
-																<p id = "forRedRange"></p>
-															</td>
-														</tr>
-														<tr>
-															<td style = "width : 10%">
-																<p>Greeb</p>
-															</td>
-															<td style = "width : 80%">
-																<input type = "range" max = "255" min = "0" id = "greenRange" oninput = "onChangeRanges()">
-															</td>
-															<td style = "width : 10%">
-																<p id = "forGreenRange"></p>
-															</td>
-														</tr>
-														<tr>
-															<td style = "width : 10%">
-															<p>Blue</p>
-															</td>
-															<td style = "width : 80%">
-																<input type = "range" max = "255" min = "0" id = "blueRange" oninput = "onChangeRanges()">
-															</td>
-															<td style = "width : 10%">
-																<p id = "forBlueRange"></p>
-															</td>
-														</tr>
-														
-														<tr>
-															<td>
-																<p>Size</p>
-															</td>
-															<td>
-																<input type = "range" min = "0" max = "4" step = "0.05" id = "sizeRange" oninput = "onChangeRanges()">
-															</td>
-															<td>
-																<p id = "forSizeRange"></p>
-															</td>
-														</tr>
-
-														<tr>
-															<td>
-																<p>Rotation X</p>
-															</td>
-															<td>
-																<input type = "range" min = "-180" max = "180" step = "0.05" id = "rotationXRange" oninput = "onChangeRanges()">
-															</td>
-															<td>
-																<p id = "forRotationXRange"></p>
-															</td>
-														</tr>
-<tr>
-															<td>
-																<p>Rotation Y</p>
-															</td>
-															<td>
-																<input type = "range" min = "-180" max = "180" step = "0.05" id = "rotationYRange" oninput = "onChangeRanges()">
-															</td>
-															<td>
-																<p id = "forRotationYRange"></p>
-															</td>
-														</tr>
-<tr>
-															<td>
-																<p>Rotation Z</p>
-															</td>
-															<td>
-																<input type = "range" min = "-180" max = "180" step = "0.05" id = "rotationZRange" oninput = "onChangeRanges()">
-															</td>
-															<td>
-																<p id = "forRotationZRange"></p>
-															</td>
-														</tr>
-													</table>
-												</div>
-											</td>
-										</tr>
-									</table>
-									<p>
-									  <button onclick="javascript:ui.addSphere()">Add Sphere</button>
-									  <button onclick="javascript:ui.addCube()">Add Cube</button>
-									  <button onclick="javascript:ui.addCylinder()">Add Cylinder</button>
-									</p>
 									
 									
-
-									<p>
-									  <b>Material:</b>
-									  <select id="material">
-										<option value="0" selected>Diffuse</option>
-										<option value="1">Mirror</option>
-										<option value="2">Glossy</option>
-									  </select>
-									  <span id="glossiness-factor">
-										<br>with glossiness factor: 0 &lt; <input id="glossiness" value="0.6"> &lt; 1
-									  </span>
-									  <br>
-
-									  <b>Environment:</b>
-									  <select id="environment">
-										<option value="0" selected>Cornell Box - Yellow and Blue</option>
-										<option value="1">Cornell Box - Red and Green</option>
-									  </select>
-									</p>
-
-									<p>
-									  <b>Load preset scene:</b>
-									  <br><button onclick="javascript:ui.setObjects(makeSphereColumn(),lights)">Sphere Column</button>
-									  <br><button onclick="javascript:ui.setObjects(makeSpherePyramid(),lights)">Sphere Pyramid</button>
-									  <br><button onclick="javascript:ui.setObjects(makeSphereAndCube(),lights)">Sphere and Cube</button>
-									  <br><button onclick="javascript:ui.setObjects(makeCubeAndSpheres(),lights)">Cube and Spheres</button>
-									  <br><button onclick="javascript:ui.setObjects(makeSphereCylinderColumn(),lights)">Hello world</button>
-									  <br><button onclick="javascript:ui.setObjects(makeTableAndChair(),lights)">Table and Chair</button>
-									  <br><button onclick="javascript:ui.setObjects(makeStacks(),lights)">Stacks</button>
-									</p>
-									
-									<h3> Luminotecnia</h3>
+									<video width="100%" controls>
+										  <source src="proyectoFinal/imgs/COMPLETOF.mp4" type="video/mp4">										  
+										  Your browser does not support HTML5 video.
+									</video>
+									<h3> DEMO</h3>
 								
-									<p>Empiezo a trabajar en una librería que permita introducir principios físicos de luminotecnia para darle realismo a la aplicación. En específico se quiere tener en cuenta los siguientes aspectos:</p>
-									<ul>
-										<li><strong>Flujo luminoso: </strong>Flujo luminoso es la cantidad total de iluminación emitida por una fuente de luz en una unidad de tiempo, la unidad de medida es el lumen (lm). Se utiliza para indicar la cantidad de luz manifestada en una superficie o para señalar la reproducción luminosa de una fuente. Cuando la fuente de luz es una lámpara el flujo luminoso no se reparte de manera uniforme. El flujo luminoso Փ es un índice representativo de la potencia luminosa de una fuente de luz. Փ = lumen (lm)..</li>
-										<li><strong>Eficacia luminosa: </strong>La eficacia luminosa describe el rendimiento de una lámpara. Se expresa mediante la relación del flujo luminoso entregado, en lumen y la potencia consumida, en vatios. El valor teórico máximo alcanzable con una conversión total de la energía a 555 nm sería 683 lm/W. Las eficacias luminosas realmente alcanzables varían en función del manantial de luz, pero quedan siempre por debajo de este valor ideal.</li>
-										<li><strong>Intensidad luminosa.</strong>La intensidad luminosa de una fuente de luz en una dirección dada, es la relación que existe entre el flujo luminoso contenido en un ángulo sólido cualquiera, cuyo eje coincida con la dirección considerada y el valor de dicho ángulo sólido expresado en estereoradianes. Su unidad es la candela (cd).</li>
-										<li><strong>Iluminancia:  </strong>La iluminancia es un índice representativo de la densidad del flujo luminoso sobre una superficie. Se define como la relación entre el flujo luminoso que incide sobre una superficie y el tamaño de esta superficie. A su vez la iluminancia no se encuentra vinculada a una superficie real, puede ser determinada en cualquier lugar del espacio. La iluminancia se puede deducir de la intensidad luminosa. Al mismo tiempo disminuye la iluminancia con el cuadrado de la distancia de la fuente de luz (ley de la inversa del cuadrado de la distancia). Su unidad es el lux..</li>
-										<li><strong>Luminancia:</strong>Mientras que la iluminancia nos describe la potencia luminosa que incide en una superficie, vemos que la luminancia nos describe la luz que procede de esa misma superficie. A su vez dicha luz puede ser procedente de la superficie misma (p.ej. en el caso de la luminancia de lámparas y luminarias). También vemos que la luminancia se encuentra definida como la relación entre la intensidad luminosa y la superficie proyectada sobre el plano perpendicularmente a la dirección de irradiación. Pero es posible que la luz sea reflejada o transmitida por la superficie. En el caso de materiales que reflejan en forma dispersa (mateados) y que transmiten en forma dispersa (turbios), es posible averiguar la luminancia a base de la iluminancia y el grado de reflexión (reflectancia) o transmisión (transmitancia). La luminosidad está en relación con la luminancia; no obstante, la impresión verdadera de luminosidad está bajo la influencia del estado de adaptación del ojo, del contraste circundante y del contenido de información de la superficie a la vista. La luminancia L de una superficie luminiscente resulta de la relación entre la intensidad luminosa I y su superficie proyectada Ap.</li>
-									</ul>
+									<p>Puede acceder al demo en el siguiente <a href= "proyectoFinalDemo.html"> Link </a> </p>
 									
 									
 									
