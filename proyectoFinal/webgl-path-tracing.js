@@ -1371,7 +1371,7 @@ UI.prototype.selectLight = function() {
 };
 
 UI.prototype.addLight = function() {
-  var nLight = new Light(nextLightId++, [0.0, 0.2, -0.6], Vector.create([1.0,1.0,1.0]));
+  var nLight = new Light(nextLightId++, [0.0, 0.2, -0.6], Vector.create([1.0,1.0,1.0]), IES_T[0]);
   addOptionSelect(nLight.lightId);
   this.lights.push(nLight);
   this.renderer.setObjects(this.objects, this.lights);
