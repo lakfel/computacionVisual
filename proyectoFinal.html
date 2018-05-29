@@ -83,9 +83,140 @@ http://www.templatemo.com/tm-501-neaty
 									
 								<div id="main">
 								
-									<h2> Primer Sprint </h2>
+									<h2> Tecnologías </h2>
 								
-									<p>Para comenzar utilizamos el ejemplo del <a href = "proyecto10.html">proyecto10</a> que es una adecuación del código original de Evan que se puede encontrar en <a href="http://madebyevan.com/webgl-path-tracing/">este link</a> Y cuyo código fuente lo encuentran en github. Lo que se está realizando es un estudio de la aplicación de la luz. En este caso pbservamos que la luz no cuenta </p>
+									<p>Para este proyecto he partido del ejemplo presentado en el <a href = "proyecto10.html">proyecto 10</a> que es una adecuación del código original de Evan que se puede encontrar en <a href="http://madebyevan.com/webgl-path-tracing/">este link</a> Y cuyo código fuente lo encuentran en github. Lo que se está realizando es un estudio de la aplicación de la luz. En este caso pbservamos que la luz no cuenta </p>
+
+									<p>A continuación encontramos un poco de contexto para entender la complejidad del proyecto y todo lo realizado</p>
+
+									<h3> Pipeline Original</h3>
+
+									<p>El proyecto, al igual que el curso, se desarrolla completamente en WebGL. Esta tecnología utiliza una mezcla de procesamiento en CPU y GPU para dar como resultado escenas interactivas en 2D y 3D. El marco habitual de el despliegue de escenas en WebGl de manera <strong>MUY SIMPLIFICADA</strong> sigue la siguiente lógica.</p>
+									
+									<p>Se describen los objetos y todas sus propiedades en un modelo tridimensional. En espécifico se realizan dibujos de superficies por medio de triangulos, puntos o líneas (Se puede incluso en polígonos), colores y texturas. Esta información se le pasa a un primer programa llamado <strong>VERTEX SHADER</strong> que calcula por medio de proyecciones, la posición de vertices en el plano de la pantalla junto con los polígonos creados. A este primer programa debemos darle la posición de todos los vertices que forman las figuras que estamos creando</p>	
+
+									<p>Un segundo programa <strong>FRAGMENT SHADER</strong> cálcula para cada pixel los colores.</p>	
+									
+									<img src = "proyectoFinal/imgs/pipelineTradicional.jpg">
+									<p>Imágen tomada de https://www.safaribooksonline.com/library/view/webgl-beginners-guide/9781849691727/ch02s02.html</p>
+
+									<h3>Ray tarcing</h3>
+									<p> Este nuevo modelo cambia completamente la filosofía. Dibujar los elementos dependen de las fuentes de luz y como estas afectan los objetos. No encontré mejor manera de describirlo que robandome un vídeo.</p>
+									<iframe width="420" height="315"
+									src="https://www.youtube.com/embed/frLwRLS_ZR0?start=60">
+									</iframe>
+									<p> Consiste en calcular, que de la fuente de luz se envían multiples rayos que van rebotando un determinado de veces en los objetos e iluminandolos. En ese transcurso calculamos los colores gracias a esos rebotes. Es claro que la ciencia detrás es algo más copleja pero la idea es esa. Debido a las limitaciones que nosotros tenemos impuestas por el Pipeline de WebGl, el proyecto base utiliza una ideología similar que describo en la siguiente ilustración</p>
+									<img src = "proyectoFinal/imgs/pipeLinePropio.png">
+									<p> Los rayos los enviamos nosotros desde cada pixel, calculamos el aporte de la fuente de luz y realizamos un determinado número de rebotes. De manera general es lo que se hace. Continuemos con el uso que le damos a esta técnica.</p>
+	
+									<h2> Contexto </h2>
+
+									<p>Por interés de una arquitecta que trabajo en el diseño profesional de luces, se requiere realizar un software para el cálculo realista de luces en ambientes. Como punto de referencia se toma el software DiaLux antes descrito.</p> 
+
+									<p>En principio se quiere agregar más y más características físicas de luminotecnia en la iteracción de objetos y luces en el proyecto. De momento estamos aplicando 3 elementos</p>
+
+									<h2> Iluminancia </h2>
+
+									<p>Es una magnitud característica del objeto iluminado, que indica la cantidad de luz que incide sobre su superficie, al ser iluminado por la fuente.</p>
+									<p>E = I/d2<br>
+									<br>
+									 E = nivel de iluminación en lux<br>
+									 I = Intensidad luminosa en candelas<br>
+									 d = distancia en metros.</p>
+
+									<h2> Luminancia </h2>
+
+									<p>La luminancia es la relación entre la intensidad luminosa y la superficie aparente. La superficie aparente es la proyección dela superficie real sobre un plano perpendicular a la dirección de la mirada. El valor de la superficie aparente se calcula como producto de la superficie real por el coseno del ángulo que forma la dirección de la mirada con la perpendicular a dicha superficie (cos Θ).</p>
+									<p>  L = I/ (S x cos Θ )
+									<br>
+
+									  I = Intensidad luminosa en candelas.<br>
+									  S = Superficie en cm2  o m2  <br>
+									  L = Luminancia en cd/cm2 o cd/m2  <br>
+									
+									<img src = "proyectoFinal/imgs/luminancia.jpg">
+
+									<h2> Archvos IES </h2>
+									<p> Los archivos de datos que se crean mediante el IES (Illuminating Engineering Society) formato estandarizado fotométrica son llamados archivos IES; por lo que se consideran archivos IES fotométricos IES archivos de datos. Estos archivos guardan las cantidades de luz y mediciones, por lo que son útiles para la simulación de sistemas de iluminación antes de ser instalados en los edificios. Aparte de eso, archivos IES también son útiles para el examen de la iluminación fuente de luz para los sitios al aire libre como carreteras, etc. Desde que se ocupan principalmente de los datos de iluminación y fotometría, muchos programas de 3D utilizan este formato de archivo, así como la mayoría de los fabricantes de iluminación publican este archivo formato. archivos IES lo general se abren y ver con el uso de Autodesk Revit Architecture 2013, una aplicación más usada por los diseñadores y arquitectos. Permite a los usuarios crear diseños arquitectónicos de la más alta calidad y precisión. Esta aplicación se ejecuta en un sistema operativo Windows.</p>
+
+									<p> En cocreto el archivo moldea el comportamiento de los luces dada una dirección y ángulos de desplazamiento. Un archivo IES abierto con un SW especializado me da esta información de la siguiente manera</p>
+
+									
+									<img src = "proyectoFinal/imgs/ejemplosIES.png">
+
+									<p> Es claro como nos dice como se debe comportar la luz a diferentes ángulos que golpean al centro de la fuente.</p>
+
+
+									<h2> Resultados </h2>
+
+									<p>Se han logrado incorporar estos elementos en WebGl permitiendo cargar información de archivos IES en un ambiente donde en principio solo s epueden crear, esferas, cubos y cilindros. Las luces cuentan con parámetros de localización, color y orientación manipulables en ejecución. También cuenta con información IES aunque esta de momento solo se tienen 3 tipos de archivos en los cuales se pueden seleccionar</p>
+
+
+									<p>En función de poder realizar una validación del éxito o fracaso de las visualizaciones hemos partido de 2 programas exernos para poder, de manera cualitativa, emitir un juicio. Estos programas son Dialux que permite generar una escena e incluir luces, y IES Viewer que permite ver el patrón de radiación de una luz determinada </br>. Además hemos consultado a una experta en el uso de este tipo de software para conocer su apreciación</p>
+
+
+									<p>A continuación se muestra como se carga una sola Luz en cada software pegado a la pared para ver su patrón y el resultado de IES Viewer</p>
+				
+
+									<!--table>
+										<tr>
+											<td style = "width:30%">
+												<img src = "proyectoFinal/imgs/ej1Dialux.png" width = "100%">
+											</td>
+											<td style = "width:30%">
+												<img src = "proyectoFinal/imgs/ej1Ray.png" width = "100%">
+											</td>
+											<td style = "width:40%">
+												<img src = "proyectoFinal/imgs/ej1Viewer.png" width = "100%">
+											</td>
+										</tr>
+										<tr>
+											<td style = "width:30%">
+												<img src = "proyectoFinal/imgs/ej2Dialux.png" width = "100%">
+											</td>
+											<td style = "width:30%">
+												<img src = "proyectoFinal/imgs/ej2Ray.png" width = "100%">
+											</td>
+											<td style = "width:40%">
+												<img src = "proyectoFinal/imgs/ej2Viewer.png" width = "100%">
+											</td>
+										</tr>
+										<tr>
+											<td style = "width:30%">
+												<img src = "proyectoFinal/imgs/ej3Dialux.png" width = "100%">
+											</td>
+											<td style = "width:30%">
+												<img src = "proyectoFinal/imgs/ej3Ray.png" width = "100%">
+											</td>
+											<td style = "width:40%">
+												<img src = "proyectoFinal/imgs/ej3Viewer.png" width = "100%">
+											</td>
+										</tr>
+									</table>
+									<p>Otros ejemplos mostrando entre Dialux y nuestro ejemplo en Ray tracing</p>
+									<table>
+										<tr>
+											<td style = "width:50%">
+												<img src = "proyectoFinal/imgs/escena1Dialux.png" width = "100%">
+											</td>
+											<td style = "width:50%">
+												<img src = "proyectoFinal/imgs/escena1Ray.png" width = "100%">
+											</td>
+										</tr>
+										<tr>
+											<td style = "width:50%">
+												<img src = "proyectoFinal/imgs/escena2Dialux.png" width = "100%">
+											</td>
+											<td style = "width:50%">
+												<img src = "proyectoFinal/imgs/escena2Ray.png" width = "100%">
+											</td>
+										</tr>
+									</table-->
+
+									<h2> Conclusiones </h2>
+									<h2> Conclusiones </h2>
+
+									<p>Se han logrado incorporar estos elementos en WebGl permitiendo cargar información de archivos IES en un ambiente donde en principio solo s epueden crear, esferas, cubos y cilindros. Las luces cuentan con parámetros de localización, color y orientación manipulables en ejecución. También cuenta con información IES aunque esta de momento solo se tienen 3 tipos de archivos en los cuales se pueden seleccionar</p>
 									<table>
 										<tr>
 											<td>

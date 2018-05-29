@@ -324,7 +324,7 @@ function makeCalculateColor(objects) {
 		// compute diffuse lighting contribution
 '     	vec3 toLight = light - hit;' +
 '     	vec3 toLight2 =  hit - light;' +
-'     	float diffuse = max(0.0, dot(normalize(toLight), normal)) / (dot(toLight,toLight)/ size );' +
+'     	float diffuse = 3.0* max(0.0, dot(normalize(toLight), normal)) / (dot(toLight,toLight)/ size );' +
 '		float diffuse2 = 0.0;' +
 '		float cosinePat = dot(normalize(lightDirection), normalize(toLight2));' +
 '		float anglePat = acos(cosinePat)* '+ (180/Math.PI).toFixed(1) + ';' +  
@@ -823,7 +823,7 @@ Cube.intersect = function(origin, ray, cubeMin, cubeMax) {
 // class Light
 ////////////////////////////////////////////////////////////////////////////////
 
-function Light(id, posicion, color) {
+function Light(id, posicion, color, iesN) {
   this.temporaryTranslation = Vector.create([0, 0, 0]);
   this.lightId = 'light' + id;
   this.id = id;
@@ -836,7 +836,7 @@ function Light(id, posicion, color) {
   this.yRotation = 0;
   this.zRotation = 0;
   this.iesSTR = this.lightId + 'IES';
-  this.ies = IES_1;
+  this.ies = iesN;
   this.textureSTR = this.lightId + 'texture';
   this.texture  = texture;
 }
@@ -1074,14 +1074,14 @@ function Renderer() {
   
   
   var verticesLamp = [
-    0, 0, 0,
-    1, 0, 0,
-    0.25, 1, 0.25,
-    0.75, 1, 0.25,
-    0, 0, 1,
-    1, 0, 1,
-    0.25, 1, 0.75,
-    0.75, 1, 0.75
+    0.25, 0.5, 0.25,
+    0.75, 0.5, 0.25,
+    0.35, 1, 0.35,
+    0.65, 1, 0.35,
+    0.25, 0.5, 0.75,
+    0.75, 0.5, 0.75,
+    0.35, 1, 0.65,
+    0.65, 1, 0.65
 	/*0.5, 1.5, 0.5,
 	0.5, -0.5, 0.5,
 	0, 0, 1,
@@ -1197,7 +1197,7 @@ Renderer.prototype.render = function() {
 	  modelviewProjection: rotMat
 	});
 	
-	gl.uniform3fv(location, new Float32Array([0.85,0.85,0.85]));
+	gl.uniform3fv(location, new Float32Array([0.75,0.75,0.75]));
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexLampBuffer);
 	gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 	
@@ -1644,6 +1644,8 @@ for(var i = 0; i < IES.elements.length; i++) IES.elements[i] = IES.elements[i]/1
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	for(var i = 0; i < IES_1.elements.length; i++) IES_1.elements[i] = IES_1.elements[i]/1289.2;
+	for(var i = 0; i < IES_2.elements.length; i++) IES_2.elements[i] = IES_2.elements[i]/1843.8;
+	for(var i = 0; i < IES_3.elements.length; i++) IES_3.elements[i] = IES_3.elements[i]/1087.2;
     // keep track of whether an <input> is focused or not (will be no only if inputFocusCount == 0)
     var inputs = document.getElementsByTagName('input');
     for(var i= 0; i < inputs.length; i++) {
@@ -1657,11 +1659,16 @@ for(var i = 0; i < IES.elements.length; i++) IES.elements[i] = IES.elements[i]/1
 	
 	currentLight = 0;
 	 
-	lights.push(new Light(nextLightId++, [0.0, -0.35, 0.95], Vector.create([1.0,1.0,0.0])));
+	//lights.push(new Light(nextLightId++, [0.0, -0.35, 0.95], Vector.create([1.0,1.0,1.0]), IES_1));
+	lights.push(new Light(nextLightId++, [0.0, -0.35, 0.95], Vector.create([1.0,1.0,1.0]), IES_2));
+	//lights.push(new Light(nextLightId++, [0.0, -0.35, 0.95], Vector.create([1.0,1.0,1.0]), IES_3));
+
 	//lights.push(new Light(nextLightId++, [0.4, -0.5, -0.6], Vector.create([1.0,0.0,0.0])));
 	
 	addOptionSelect(lights[0].lightId);
-	lights[0].xRotation = Math.PI/2;
+	//addOptionSelect(lights[1].lightId);
+	//addOptionSelect(lights[2].lightId);
+	//lights[0].xRotation = Math.PI/2;
 	//addOptionSelect(lights[1].lightId);
 	updateRanges();
     ui.setObjects(makeStacks(), lights);
@@ -1867,14 +1874,27 @@ function mostrarContenido(contenido) {
   var elemento = document.getElementById('contenido-archivo');
   //elemento.innerHTML = contenido;
 }
-var IES_1 = Vector.create([1260.3 ,1261.6 ,1266.5 ,1272.5 ,1278.0 ,1283.2 ,1287.4 ,1289.2 ,1288.5 ,1285.4 ,1279.3 ,1269.0 ,1253.7 ,1234.1 ,1210.8 ,
-
+var IES_1 = Vector.create([1260.3 ,1261.6 ,1266.5 ,1272.5 ,1278.0 ,1283.2 ,1287.4 ,1289.2 ,1288.5 ,1285.4 ,1279.3 ,1269.0 ,1253.7 ,1234.1 ,1210.8,
 1184.0 ,1153.8 ,1120.4 ,1084.7 ,1047.1 ,1008.2 ,968.50 ,928.10 ,886.36 ,841.88 ,793.00 ,740.12 ,683.48 ,622.58 ,559.76 ,
 496.00 ,431.55 ,367.45 ,303.92 ,241.43 ,185.79 ,142.77 ,109.56 ,84.471 ,65.244 ,50.388 ,39.409 ,31.270 ,25.219 ,20.650 ,
 17.104 ,14.346 ,12.217 ,10.589 ,9.3359 ,8.3377 ,7.5170 ,6.8298 ,6.2675 ,5.7851 ,5.3563 ,4.9726 ,4.6505 ,4.3469 ,4.0585 ,
 3.7912 ,3.5362 ,3.3010 ,3.0631 ,2.8734 ,2.6583 ,2.4085 ,2.1999 ,2.0327 ,1.8824 ,1.7196 ,1.5481 ,1.4002 ,1.2654 ,1.1525 ,
 1.0437 ,0.9485 ,0.8532 ,0.7617 ,0.6761 ,0.6033 ,0.5399 ,0.4743 ,0.4062 ,0.3411 ,0.2741 ,0.1996 ,0.1437 ,0.0923 ,0.0328 ,
 0.0066 ]);
+var IES_2 = Vector.create([1843.8,1839.4,1835.1,1831.0,1827.4,1823.7,1823.6,1823.4,1819.9,1812.9,1806.0,1777.0,1748.0,1704.1,1645.2,
+1586.4,1500.9,1415.3,1324.9,1229.6,1134.2,1036.8,939.42,837.91,732.28,626.65,528.02,429.39,337.70,252.94,
+168.19,122.70,77.214,47.280,32.901,18.523,13.964,9.4045,6.3485,4.7953,3.2422,2.7003,2.1584,1.7908,1.5974,
+1.4041,1.2949,1.1856,1.0898,1.0075,0.9251,0.8571,0.7890,0.7242,0.6626,0.6010,0.5441,0.4872,0.4326,0.3803,
+0.3281,0.2835,0.2389,0.1974,0.1590,0.1206,0.0916,0.0627,0.0475,0.0461,0.0447,0.0419,0.0391,0.0372,0.0362,
+0.0351,0.0339,0.0326,0.0320,0.0321,0.0323,0.0321,0.0320,0.0323,0.0329,0.0335,0.0360,0.0384,0.0403,0.0415,
+0.0428]);
+var IES_3 = Vector.create([1087.2,1057.1,1000.9,926.47,836.48,734.18,627.13,521.52,423.62,337.99,262.83,198.35,148.19,110.73,82.408,
+60.649,44.499,33.556,26.627,21.962,18.386,15.531,13.234,11.330,9.7462,8.5501,7.7849,7.3221,6.9855,6.6988,
+6.4549,6.2566,6.0947,5.9487,5.7962,5.6257,5.4428,5.2592,5.0815,4.9110,4.7457,4.5855,4.4296,4.2765,4.1249,
+3.9749,3.8271,3.6823,3.5410,3.4045,3.2732,3.1458,3.0198,2.8947,2.7723,2.6536,2.5385,2.4261,2.3163,2.2102,
+2.1079,2.0083,1.9105,1.8132,1.7167,1.6219,1.5303,1.4424,1.3573,1.2739,1.1917,1.1108,1.0310,0.9523,0.8745,
+0.7987,0.7251,0.6540,0.5854,0.5194,0.4551,0.3891,0.3186,0.2478,0.1859,0.1358,0.0934,0.0651,0.0499,0.0322,
+0.0212]);
 
 
 
