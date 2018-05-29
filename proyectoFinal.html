@@ -226,7 +226,7 @@ http://www.templatemo.com/tm-501-neaty
 									<table>
 										<tr>
 											<td>
-												<canvas id="canvas" width="1024" height="1024"></canvas>
+												<canvas id="canvas" width="512" height="512"></canvas>
 												<div id="error"><noscript>Please enable JavaScript.</noscript></div>
 											</td>
 											<td>
@@ -234,7 +234,7 @@ http://www.templatemo.com/tm-501-neaty
 													<table>
 														<tr>
 															<td>
-																<p>Lights</p>
+																<>Lights</p>
 															</td>
 														</tr>
 														<tr>
@@ -254,11 +254,22 @@ http://www.templatemo.com/tm-501-neaty
 															</td>
 														
 														<tr>
+															
 															<td>
-																<select id = "lightsSelect" onchange = "selectChange()"></select>
+																<select id = "lightsSelect" onchange = "javascript:selectChange()"></select>
 															</td>
 															<td>
 																<button onclick="javascript:ui.selectLight()">Select Light</button>
+															</td>
+														</tr>
+														<tr>
+															
+															<td>
+																<select id = "iesSelect" onchange = "javascript:selectChange()">
+																	<option value = "S1">IES 1</option>
+																	<option value = "S2">IES 2</option>
+																	<option value = "S3">IES 3</option>
+																</select>
 															</td>
 														</tr>
 														<tr>
