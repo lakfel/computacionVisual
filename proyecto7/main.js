@@ -928,7 +928,17 @@
         initShaders();
         initBuffers();
         initTexture();
-		
+		document.addEventListener("visibilitychange", function() {
+			var sonido = document.getElementById("sonidos");
+			if(document.hidden)
+			{
+				sonido.pause();
+			}
+			else
+			{
+				sonido.play();
+			}
+		});
 		document.getElementById("btnMas").addEventListener("click",function()
 		{
 			cantidadLatas = Math.min(cantidadLatas+1,18);
